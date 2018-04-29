@@ -60,24 +60,24 @@ func (k keyIndex) insertAndSort(n uint32) (keyIndex, error) {
 
 type keyMap map[string]uint32
 
-type LookupCache struct {
+type Cache struct {
 	sync.RWMutex
 	items     keyMap
 	openSlots keyIndex
 	n         uint32
 }
 
-// NewLookupCache creates a new LookupCache.
-func NewLookupCache() *LookupCache {
-	return &LookupCache{
+// NewCache creates a new Cache.
+func New() *Cache {
+	return &Cache{
 		items:     make(keyMap),
 		openSlots: make(keyIndex, 0),
 		n:         0,
 	}
 }
 
-// Put records the value of a key-index pair in a LookupCache's openSlots map.
-func (l *LookupCache) Put(key string) error {
+// Put records the value of a key-index pair in a Cache's openSlots map.
+func (l *Cache) Put(key string) error {
 	var i uint32
 
 	l.Lock()
@@ -92,7 +92,7 @@ func (l *LookupCache) Put(key string) error {
 	// Check to see if key already exisits, if so throw error.
 	if _, ok := l.items[key]; ok {
 		l.Unlock()
-		return errors.Wrap(ErrKeyExists, "in LookupCache's KeyMap")
+		return errors.Wrap(ErrKeyExists, "in Cache's KeyMap")
 	}
 	l.items[key] = i
 
@@ -101,20 +101,20 @@ func (l *LookupCache) Put(key string) error {
 
 // Get returns the value associated with key value.
 // If key does not exist in map, 0 & error are returned.
-func (l *LookupCache) Get(key string) (uint32, error) {
+func (l *Cache) Get(key string) (uint32, error) {
 	var i uint32
 	var ok bool
 
 	l.Lock()
 	if i, ok = l.items[key]; !ok {
 		l.Unlock()
-		return i, errors.Wrap(ErrKeyNotFound, "in LookupCache's KeyMap")
+		return i, errors.Wrap(ErrKeyNotFound, "in Cache's KeyMap")
 	}
 	l.Unlock()
 	return i, nil
 }
 
-func (l *LookupCache) Remove(key string) error {
+func (l *Cache) Remove(key string) error {
 	var i uint32
 	var ok bool
 	var err error

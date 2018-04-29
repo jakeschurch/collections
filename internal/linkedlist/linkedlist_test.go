@@ -41,10 +41,10 @@ func TestNewLinkedList(t *testing.T) {
 	tests := []struct {
 		name string
 		args args
-		want *LinkedList
+		want *List
 	}{
 		{"base case", args{mockSummary()},
-			&LinkedList{Summary: &mockedSummary,
+			&List{Summary: &mockedSummary,
 				head: &HoldingNode{next: nil, prev: nil},
 				tail: &HoldingNode{next: nil, prev: nil}}},
 	}
@@ -83,7 +83,7 @@ func TestLinkedList_Push(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			l := &LinkedList{
+			l := &List{
 				Summary: tt.fields.Summary,
 				head:    tt.fields.head,
 				tail:    tt.fields.tail,
@@ -130,7 +130,7 @@ func TestLinkedList_Pop(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			l := &LinkedList{
+			l := &List{
 				Summary: tt.fields.Summary,
 				head:    tt.fields.head,
 				tail:    tt.fields.tail,

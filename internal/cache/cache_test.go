@@ -54,7 +54,7 @@ func Test_keyIndex_insertAndSort(t *testing.T) {
 	}
 }
 
-func TestLookupCache_Put(t *testing.T) {
+func TestCache_Put(t *testing.T) {
 	type fields struct {
 		items     keyMap
 		openSlots keyIndex
@@ -79,19 +79,19 @@ func TestLookupCache_Put(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			l := &LookupCache{
+			l := &Cache{
 				items:     tt.fields.items,
 				openSlots: tt.fields.openSlots,
 				n:         tt.fields.n,
 			}
 			if err := l.Put(tt.args.key); (err != nil) != tt.wantErr {
-				t.Errorf("LookupCache.Put() error = %v, wantErr %v", err, tt.wantErr)
+				t.Errorf("Cache.Put() error = %v, wantErr %v", err, tt.wantErr)
 			}
 		})
 	}
 }
 
-func TestLookupCache_Get(t *testing.T) {
+func TestCache_Get(t *testing.T) {
 	type fields struct {
 		items     keyMap
 		openSlots keyIndex
@@ -116,24 +116,24 @@ func TestLookupCache_Get(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			l := &LookupCache{
+			l := &Cache{
 				items:     tt.fields.items,
 				openSlots: tt.fields.openSlots,
 				n:         tt.fields.n,
 			}
 			got, err := l.Get(tt.args.key)
 			if (err != nil) != tt.wantErr {
-				t.Errorf("LookupCache.Get() error = %v, wantErr %v", err, tt.wantErr)
+				t.Errorf("Cache.Get() error = %v, wantErr %v", err, tt.wantErr)
 				return
 			}
 			if got != tt.want {
-				t.Errorf("LookupCache.Get() = %v, want %v", got, tt.want)
+				t.Errorf("Cache.Get() = %v, want %v", got, tt.want)
 			}
 		})
 	}
 }
 
-func TestLookupCache_Remove(t *testing.T) {
+func TestCache_Remove(t *testing.T) {
 	type fields struct {
 		items     keyMap
 		openSlots keyIndex
@@ -157,13 +157,13 @@ func TestLookupCache_Remove(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			l := &LookupCache{
+			l := &Cache{
 				items:     tt.fields.items,
 				openSlots: tt.fields.openSlots,
 				n:         tt.fields.n,
 			}
 			if err := l.Remove(tt.args.key); (err != nil) != tt.wantErr {
-				t.Errorf("LookupCache.Remove() error = %v, wantErr %v", err, tt.wantErr)
+				t.Errorf("Cache.Remove() error = %v, wantErr %v", err, tt.wantErr)
 			}
 		})
 	}

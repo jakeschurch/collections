@@ -29,9 +29,9 @@ import (
 
 var ErrListEmpty = errors.New("no elements in linkedlist")
 
-// LinkedList is a collection of HoldingNodes,
+// List is a collection of HoldingNodes,
 // as well as aggregate metrics on the collection of holdings.
-type LinkedList struct {
+type List struct {
 	sync.RWMutex
 	*instruments.Summary
 	head *HoldingNode
@@ -39,8 +39,8 @@ type LinkedList struct {
 }
 
 // NewLinkedList constructs a new LinkedList instance.
-func NewLinkedList(summary instruments.Summary) *LinkedList {
-	return &LinkedList{
+func NewLinkedList(summary instruments.Summary) *List {
+	return &List{
 		Summary: &summary,
 		head:    &HoldingNode{next: nil, prev: nil},
 		tail:    &HoldingNode{next: nil, prev: nil},
@@ -48,7 +48,7 @@ func NewLinkedList(summary instruments.Summary) *LinkedList {
 }
 
 // Push inserts node into a LinkedList.
-func (l *LinkedList) Push(node *HoldingNode) {
+func (l *List) Push(node *HoldingNode) {
 	var last *HoldingNode
 
 	l.Lock()
@@ -68,7 +68,7 @@ func (l *LinkedList) Push(node *HoldingNode) {
 
 // Pop returns last element in linkedList.
 // Returns nil if no elements in list besides head and tail.
-func (l *LinkedList) Pop() (*HoldingNode, error) {
+func (l *List) Pop() (*HoldingNode, error) {
 	var last = l.tail
 	l.Lock()
 
