@@ -18,7 +18,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-package holdinglist
+package holdings
 
 import (
 	"sync"
@@ -34,6 +34,7 @@ type Holdings struct {
 	list  []*linkedlist.List
 }
 
+// New returns a new Holdings instance.
 func New() *Holdings {
 	return &Holdings{
 		cache: cache.New(),
@@ -41,6 +42,8 @@ func New() *Holdings {
 	}
 }
 
+// Get returns a linkedlist.List associated with a key from Holdings.list.
+// If none are associated with specific key, return nil.
 func (h *Holdings) Get(key string) (*linkedlist.List, error) {
 	var list *linkedlist.List
 
@@ -56,8 +59,9 @@ func (h *Holdings) Get(key string) (*linkedlist.List, error) {
 }
 
 func (h *Holdings) Insert(key string) error {
-	return nil
+	return h.cache.Put(key)
 }
-func (h *Holdings) Remove(key string) error {
-	return nil
+
+func (h *Holdings) Remove(key string) (err error) {
+	return h.cache.Remove(key)
 }

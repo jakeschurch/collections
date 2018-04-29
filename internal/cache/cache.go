@@ -95,7 +95,6 @@ func (l *Cache) Put(key string) error {
 		return errors.Wrap(ErrKeyExists, "in Cache's KeyMap")
 	}
 	l.items[key] = i
-
 	return nil
 }
 
@@ -114,6 +113,8 @@ func (l *Cache) Get(key string) (uint32, error) {
 	return i, nil
 }
 
+// Remove an element from cache's items.
+// Returns error if not found.
 func (l *Cache) Remove(key string) error {
 	var i uint32
 	var ok bool
