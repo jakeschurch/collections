@@ -11,10 +11,11 @@ To install this package, you need to install Go and setup your Go workspace on y
 
 ### Prerequisites
 
-This requires Go 1.6 or later.
+This requires Go 1.8 or later.
 We also use dep to manage external dependencies. Installation notes for dep can be [found here](https://golang.github.io/dep/docs/installation.html).
 
 ## Documentation
+
 See [API documentation](https://godoc.org/github.com/jakeschurch/collections) for package and API descriptions.
 
 ## Contributing
