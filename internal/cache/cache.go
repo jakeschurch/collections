@@ -77,58 +77,55 @@ func New() *Cache {
 }
 
 // Put records the value of a key-index pair in a Cache's openSlots map.
-func (l *Cache) Put(key string) (uint32, error) {
+func (c *Cache) Put(key string) (uint32, error) {
 	var i uint32
 
-	l.Lock()
+	c.Lock()
 	// Check to see if we can grab an index from an open slot.
-	switch len(l.openSlots) {
+	switch len(c.openSlots) {
 	case 0:
-		i = atomic.LoadUint32(&l.n)
-		atomic.AddUint32(&l.n, 1)
+		i = atomic.LoadUint32(&c.n)
+		atomic.AddUint32(&c.n, 1)
 	default:
-		i, l.openSlots = l.openSlots[0], l.openSlots[1:]
+		i, c.openSlots = c.openSlots[0], c.openSlots[1:]
 	}
 	// Check to see if key already exisits, if so throw error.
-	if _, ok := l.items[key]; ok {
-		l.Unlock()
+	if _, ok := c.items[key]; ok {
+		c.Unlock()
 		return 0, errors.Wrap(ErrKeyExists, "in Cache's KeyMap")
 	}
-	l.items[key] = i
+	c.items[key] = i
 	return i, nil
 }
 
 // Get returns the value associated with key value.
 // If key does not exist in map, 0 & error are returned.
-func (l *Cache) Get(key string) (uint32, error) {
+func (c *Cache) Get(key string) (uint32, error) {
 	var i uint32
 	var ok bool
 
-	l.Lock()
-	if i, ok = l.items[key]; !ok {
-		l.Unlock()
+	// c.Lock()
+	if i, ok = c.items[key]; !ok {
+		// c.Unlock()
 		return i, errors.Wrap(ErrKeyNotFound, "in Cache's KeyMap")
 	}
-	l.Unlock()
+	// c.Unlock()
 	return i, nil
 }
 
 // Remove an element from cache's items.
 // Returns error if not found.
-func (l *Cache) Remove(key string) (uint32, error) {
+func (c *Cache) Remove(key string) (uint32, error) {
 	var i uint32
 	var ok bool
 	var err error
 
-	l.Lock()
-	if i, ok = l.items[key]; !ok {
-		l.Unlock()
+	if i, ok = c.items[key]; !ok {
 		return 0, ErrKeyNotFound
 	}
-	delete(l.items, key)
-	if l.openSlots, err = l.openSlots.insertAndSort(i); (err != nil) && (err != ErrKeyExists) {
+	delete(c.items, key)
+	if c.openSlots, err = c.openSlots.insertAndSort(i); (err != nil) && (err != ErrKeyExists) {
 		return 0, err
 	}
-	l.Unlock()
 	return i, nil
 }

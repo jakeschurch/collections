@@ -29,37 +29,42 @@ import (
 	"github.com/jakeschurch/collections/internal/linkedlist"
 )
 
-type nodelist struct {
+type items struct {
 	data []*linkedlist.List
 	len  uint32
 }
 
-func newNodelist() *nodelist {
-	return &nodelist{
+func newItems() *items {
+	return &items{
 		data: make([]*linkedlist.List, 0),
 		len:  0,
 	}
 }
 
-func (n *nodelist) get(i uint32) *linkedlist.List {
+func (n *items) get(i uint32) *linkedlist.List {
 	return n.data[i]
 }
 
-func (n *nodelist) remove(i uint32) {
+func (n *items) remove(i uint32) {
 	n.data[i] = nil
 }
 
-func (n *nodelist) insert(holding instruments.Holding, i uint32) {
+func (n *items) insert(holding instruments.Holding, i uint32) {
 	var node = linkedlist.NewNode(holding, nil, nil)
+
 	if i >= n.len {
-		n.grow()
+		n.grow(i)
+	}
+	if n.data[i] == nil {
+		n.data[i] = linkedlist.NewLinkedList(*instruments.NewSummary(holding))
 	}
 	n.data[i].Push(node)
 }
 
-func (n *nodelist) grow() {
-	n.len = (1 + n.len) * 2
-	n.data = append(make([]*linkedlist.List, n.len), n.data...)
+func (n *items) grow(i uint32) {
+	for ; n.len <= i; n.len = (1 + n.len) * 2 {
+	}
+	n.data = append(n.data, make([]*linkedlist.List, n.len)...)
 }
 
 // ------------------------------------------------------------------
@@ -68,14 +73,14 @@ func (n *nodelist) grow() {
 type Holdings struct {
 	sync.Mutex
 	cache *cache.Cache
-	*nodelist
+	*items
 }
 
 // New returns a new Holdings instance.
 func New() *Holdings {
 	return &Holdings{
-		cache:    cache.New(),
-		nodelist: newNodelist(),
+		cache: cache.New(),
+		items: newItems(),
 	}
 }
 
@@ -90,12 +95,11 @@ func (h *Holdings) Get(key string) (*linkedlist.List, error) {
 	}
 
 	h.Lock()
-	list = h.nodelist.get(i)
+	list = h.items.get(i)
 	h.Unlock()
 	return list, nil
 }
 
-// TODO(Insert)
 // Insert a new
 func (h *Holdings) Insert(holding instruments.Holding) (err error) {
 	var i uint32
@@ -104,7 +108,8 @@ func (h *Holdings) Insert(holding instruments.Holding) (err error) {
 		h.Unlock()
 		return err
 	}
-	h.nodelist.insert(holding, i)
+	h.items.insert(holding, i)
+	h.Unlock()
 	return nil
 }
 
@@ -116,7 +121,7 @@ func (h *Holdings) Remove(key string) (err error) {
 		h.Unlock()
 		return err
 	}
-	h.nodelist.remove(i)
+	h.items.remove(i)
 	h.Unlock()
 	return nil
 }

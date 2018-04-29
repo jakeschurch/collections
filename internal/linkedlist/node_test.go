@@ -97,3 +97,25 @@ func TestHoldingNode_Prev(t *testing.T) {
 		})
 	}
 }
+
+func TestNewNode(t *testing.T) {
+	type args struct {
+		h    instruments.Holding
+		prev *HoldingNode
+		next *HoldingNode
+	}
+	tests := []struct {
+		name string
+		args args
+		want *HoldingNode
+	}{
+		// TODO: Add test cases.
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := NewNode(tt.args.h, tt.args.prev, tt.args.next); !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("NewNode() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
