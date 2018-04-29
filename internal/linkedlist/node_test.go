@@ -37,8 +37,8 @@ func mockHolding() *instruments.Holding {
 }
 func TestHoldingNode_Next(t *testing.T) {
 
-	firstNode := newNode(*mockHolding(), nil, nil)
-	secondNode := newNode(*mockHolding(), firstNode, nil)
+	firstNode := NewNode(*mockHolding(), nil, nil)
+	secondNode := NewNode(*mockHolding(), firstNode, nil)
 
 	type fields struct {
 		Holding instruments.Holding
@@ -68,8 +68,8 @@ func TestHoldingNode_Next(t *testing.T) {
 }
 
 func TestHoldingNode_Prev(t *testing.T) {
-	firstNode := newNode(*mockHolding(), nil, nil)
-	secondNode := newNode(*mockHolding(), firstNode, nil)
+	firstNode := NewNode(*mockHolding(), nil, nil)
+	secondNode := NewNode(*mockHolding(), firstNode, nil)
 
 	type fields struct {
 		Holding instruments.Holding

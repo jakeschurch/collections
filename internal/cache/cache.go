@@ -77,7 +77,7 @@ func New() *Cache {
 }
 
 // Put records the value of a key-index pair in a Cache's openSlots map.
-func (l *Cache) Put(key string) error {
+func (l *Cache) Put(key string) (uint32, error) {
 	var i uint32
 
 	l.Lock()
@@ -92,10 +92,10 @@ func (l *Cache) Put(key string) error {
 	// Check to see if key already exisits, if so throw error.
 	if _, ok := l.items[key]; ok {
 		l.Unlock()
-		return errors.Wrap(ErrKeyExists, "in Cache's KeyMap")
+		return 0, errors.Wrap(ErrKeyExists, "in Cache's KeyMap")
 	}
 	l.items[key] = i
-	return nil
+	return i, nil
 }
 
 // Get returns the value associated with key value.
@@ -115,7 +115,7 @@ func (l *Cache) Get(key string) (uint32, error) {
 
 // Remove an element from cache's items.
 // Returns error if not found.
-func (l *Cache) Remove(key string) error {
+func (l *Cache) Remove(key string) (uint32, error) {
 	var i uint32
 	var ok bool
 	var err error
@@ -123,12 +123,12 @@ func (l *Cache) Remove(key string) error {
 	l.Lock()
 	if i, ok = l.items[key]; !ok {
 		l.Unlock()
-		return ErrKeyNotFound
+		return 0, ErrKeyNotFound
 	}
 	delete(l.items, key)
 	if l.openSlots, err = l.openSlots.insertAndSort(i); (err != nil) && (err != ErrKeyExists) {
-		return err
+		return 0, err
 	}
 	l.Unlock()
-	return nil
+	return i, nil
 }

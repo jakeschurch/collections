@@ -23,22 +23,59 @@ package holdings
 import (
 	"sync"
 
+	"github.com/jakeschurch/instruments"
+
 	"github.com/jakeschurch/collections/internal/cache"
 	"github.com/jakeschurch/collections/internal/linkedlist"
 )
+
+type nodelist struct {
+	data []*linkedlist.List
+	len  uint32
+}
+
+func newNodelist() *nodelist {
+	return &nodelist{
+		data: make([]*linkedlist.List, 0),
+		len:  0,
+	}
+}
+
+func (n *nodelist) get(i uint32) *linkedlist.List {
+	return n.data[i]
+}
+
+func (n *nodelist) remove(i uint32) {
+	n.data[i] = nil
+}
+
+func (n *nodelist) insert(holding instruments.Holding, i uint32) {
+	var node = linkedlist.NewNode(holding, nil, nil)
+	if i >= n.len {
+		n.grow()
+	}
+	n.data[i].Push(node)
+}
+
+func (n *nodelist) grow() {
+	n.len = (1 + n.len) * 2
+	n.data = append(make([]*linkedlist.List, n.len), n.data...)
+}
+
+// ------------------------------------------------------------------
 
 // Holdings is a collection that stores a cache and list.
 type Holdings struct {
 	sync.Mutex
 	cache *cache.Cache
-	list  []*linkedlist.List
+	*nodelist
 }
 
 // New returns a new Holdings instance.
 func New() *Holdings {
 	return &Holdings{
-		cache: cache.New(),
-		list:  make([]*linkedlist.List, 0),
+		cache:    cache.New(),
+		nodelist: newNodelist(),
 	}
 }
 
@@ -53,15 +90,33 @@ func (h *Holdings) Get(key string) (*linkedlist.List, error) {
 	}
 
 	h.Lock()
-	list = h.list[i]
+	list = h.nodelist.get(i)
 	h.Unlock()
 	return list, nil
 }
 
-func (h *Holdings) Insert(key string) error {
-	return h.cache.Put(key)
+// TODO(Insert)
+// Insert a new
+func (h *Holdings) Insert(holding instruments.Holding) (err error) {
+	var i uint32
+	h.Lock()
+	if i, err = h.cache.Put(holding.Name); err != nil {
+		h.Unlock()
+		return err
+	}
+	h.nodelist.insert(holding, i)
+	return nil
 }
 
 func (h *Holdings) Remove(key string) (err error) {
-	return h.cache.Remove(key)
+	var i uint32
+
+	h.Lock()
+	if i, err = h.cache.Remove(key); err != nil {
+		h.Unlock()
+		return err
+	}
+	h.nodelist.remove(i)
+	h.Unlock()
+	return nil
 }

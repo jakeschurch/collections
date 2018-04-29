@@ -59,7 +59,7 @@ func TestNewLinkedList(t *testing.T) {
 
 func TestLinkedList_Push(t *testing.T) {
 	mockedSummary := mockSummary()
-	mockedNode := newNode(*mockHolding(), nil, nil)
+	mockedNode := NewNode(*mockHolding(), nil, nil)
 
 	type fields struct {
 		Summary *instruments.Summary

@@ -90,3 +90,12 @@ func (l *List) Pop() (*HoldingNode, error) {
 	l.Unlock()
 	return last, nil
 }
+
+// Peek returns a reference to the tail node in a Linked List.
+// Returns nil if list is empty.
+func (l *List) Peek() (*HoldingNode, error) {
+	if l.tail.prev == nil {
+		return nil, ErrListEmpty
+	}
+	return l.tail, nil
+}
