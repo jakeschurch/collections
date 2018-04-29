@@ -95,3 +95,58 @@ func TestLinkedList_Push(t *testing.T) {
 		})
 	}
 }
+
+func TestLinkedList_Pop(t *testing.T) {
+	mockedSummary := mockSummary()
+	mockedHead := &HoldingNode{next: nil, prev: nil}
+	mockedTail := &HoldingNode{next: nil, prev: mockedHead}
+	mockedHead.next = mockedTail
+
+	newTail := &HoldingNode{next: nil, prev: mockedTail}
+
+	type fields struct {
+		Summary *instruments.Summary
+		head    *HoldingNode
+		tail    *HoldingNode
+	}
+	tests := []struct {
+		name    string
+		fields  fields
+		want    *HoldingNode
+		wantErr bool
+	}{
+		{"base case", fields{Summary: &mockedSummary,
+			head: &HoldingNode{next: nil, prev: nil},
+			tail: &HoldingNode{next: nil, prev: nil}},
+			nil, true},
+		{"tail not nil", fields{Summary: &mockedSummary,
+			head: mockedHead,
+			tail: mockedTail},
+			mockedTail, false},
+		{"3 elements", fields{Summary: &mockedSummary,
+			head: mockedHead,
+			tail: newTail},
+			newTail, false},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			l := &LinkedList{
+				Summary: tt.fields.Summary,
+				head:    tt.fields.head,
+				tail:    tt.fields.tail,
+			}
+			if tt.name == "3 elements" {
+				l.tail.prev = mockedTail
+			}
+
+			got, err := l.Pop()
+			if (err != nil) != tt.wantErr {
+				t.Errorf("LinkedList.Pop() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+			if !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("LinkedList.Pop() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}

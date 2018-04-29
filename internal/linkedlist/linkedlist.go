@@ -21,10 +21,13 @@
 package linkedlist
 
 import (
+	"errors"
 	"sync"
 
 	"github.com/jakeschurch/instruments"
 )
+
+var ErrListEmpty = errors.New("no elements in linkedlist")
 
 // LinkedList is a collection of HoldingNodes,
 // as well as aggregate metrics on the collection of holdings.
@@ -44,6 +47,7 @@ func NewLinkedList(summary instruments.Summary) *LinkedList {
 	}
 }
 
+// Push inserts node into a LinkedList.
 func (l *LinkedList) Push(node *HoldingNode) {
 	var last *HoldingNode
 
@@ -60,4 +64,29 @@ func (l *LinkedList) Push(node *HoldingNode) {
 	node.prev = last
 	l.tail = last.next
 	l.Unlock()
+}
+
+// Pop returns last element in linkedList.
+// Returns nil if no elements in list besides head and tail.
+func (l *LinkedList) Pop() (*HoldingNode, error) {
+	var last = l.tail
+	l.Lock()
+
+	// Check to see if list is empty.
+	if last.prev == nil {
+		l.Unlock()
+		return nil, ErrListEmpty
+	}
+	l.Volume -= last.Volume
+
+	// Check to see if list has only one element.
+	if last.prev == l.head {
+		l.tail = &HoldingNode{next: nil, prev: nil}
+		return last, nil
+	}
+
+	l.tail = last.prev
+	l.tail.next = &HoldingNode{next: nil, prev: nil}
+	l.Unlock()
+	return last, nil
 }
