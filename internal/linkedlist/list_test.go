@@ -59,7 +59,7 @@ func TestNewLinkedList(t *testing.T) {
 
 func TestLinkedList_Push(t *testing.T) {
 	mockedSummary := mockSummary()
-	mockedNode := newNode(*mockHolding(), nil, nil)
+	mockedNode := NewNode(*mockHolding(), nil, nil)
 
 	type fields struct {
 		Summary *instruments.Summary
@@ -146,6 +146,70 @@ func TestLinkedList_Pop(t *testing.T) {
 			}
 			if !reflect.DeepEqual(got, tt.want) {
 				t.Errorf("LinkedList.Pop() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
+func TestList_Push(t *testing.T) {
+	type args struct {
+		node *HoldingNode
+	}
+	tests := []struct {
+		name string
+		l    *List
+		args args
+	}{
+		// TODO: Add test cases.
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			tt.l.Push(tt.args.node)
+		})
+	}
+}
+
+func TestList_Pop(t *testing.T) {
+	tests := []struct {
+		name    string
+		l       *List
+		want    *HoldingNode
+		wantErr bool
+	}{
+		// TODO: Add test cases.
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got, err := tt.l.Pop()
+			if (err != nil) != tt.wantErr {
+				t.Errorf("List.Pop() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+			if !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("List.Pop() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
+func TestList_Peek(t *testing.T) {
+	tests := []struct {
+		name    string
+		l       *List
+		want    *HoldingNode
+		wantErr bool
+	}{
+		// TODO: Add test cases.
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got, err := tt.l.Peek()
+			if (err != nil) != tt.wantErr {
+				t.Errorf("List.Peek() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+			if !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("List.Peek() = %v, want %v", got, tt.want)
 			}
 		})
 	}

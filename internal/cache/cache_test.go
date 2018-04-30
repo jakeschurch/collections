@@ -84,7 +84,7 @@ func TestCache_Put(t *testing.T) {
 				openSlots: tt.fields.openSlots,
 				n:         tt.fields.n,
 			}
-			if err := l.Put(tt.args.key); (err != nil) != tt.wantErr {
+			if _, err := l.Put(tt.args.key); (err != nil) != tt.wantErr {
 				t.Errorf("Cache.Put() error = %v, wantErr %v", err, tt.wantErr)
 			}
 		})
@@ -162,7 +162,7 @@ func TestCache_Remove(t *testing.T) {
 				openSlots: tt.fields.openSlots,
 				n:         tt.fields.n,
 			}
-			if err := l.Remove(tt.args.key); (err != nil) != tt.wantErr {
+			if _, err := l.Remove(tt.args.key); (err != nil) != tt.wantErr {
 				t.Errorf("Cache.Remove() error = %v, wantErr %v", err, tt.wantErr)
 			}
 		})

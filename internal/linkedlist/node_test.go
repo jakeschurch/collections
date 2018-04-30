@@ -37,8 +37,8 @@ func mockHolding() *instruments.Holding {
 }
 func TestHoldingNode_Next(t *testing.T) {
 
-	firstNode := newNode(*mockHolding(), nil, nil)
-	secondNode := newNode(*mockHolding(), firstNode, nil)
+	firstNode := NewNode(*mockHolding(), nil, nil)
+	secondNode := NewNode(*mockHolding(), firstNode, nil)
 
 	type fields struct {
 		Holding instruments.Holding
@@ -68,8 +68,8 @@ func TestHoldingNode_Next(t *testing.T) {
 }
 
 func TestHoldingNode_Prev(t *testing.T) {
-	firstNode := newNode(*mockHolding(), nil, nil)
-	secondNode := newNode(*mockHolding(), firstNode, nil)
+	firstNode := NewNode(*mockHolding(), nil, nil)
+	secondNode := NewNode(*mockHolding(), firstNode, nil)
 
 	type fields struct {
 		Holding instruments.Holding
@@ -93,6 +93,28 @@ func TestHoldingNode_Prev(t *testing.T) {
 			}
 			if got := node.Prev(); !reflect.DeepEqual(got, tt.want) {
 				t.Errorf("HoldingNode.Prev() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
+func TestNewNode(t *testing.T) {
+	type args struct {
+		h    instruments.Holding
+		prev *HoldingNode
+		next *HoldingNode
+	}
+	tests := []struct {
+		name string
+		args args
+		want *HoldingNode
+	}{
+		// TODO: Add test cases.
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := NewNode(tt.args.h, tt.args.prev, tt.args.next); !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("NewNode() = %v, want %v", got, tt.want)
 			}
 		})
 	}
