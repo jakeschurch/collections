@@ -30,7 +30,8 @@ type HoldingNode struct {
 	next, prev *HoldingNode
 }
 
-func newNode(h instruments.Holding, prev, next *HoldingNode) *HoldingNode {
+// NewNode returns a new reference to a Holding node.
+func NewNode(h instruments.Holding, prev, next *HoldingNode) *HoldingNode {
 	var node = &HoldingNode{
 		Holding: h, next: next, prev: prev,
 	}
