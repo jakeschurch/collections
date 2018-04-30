@@ -21,6 +21,7 @@
 package holdings
 
 import (
+	"errors"
 	"sync"
 
 	"github.com/jakeschurch/instruments"
@@ -29,11 +30,15 @@ import (
 	"github.com/jakeschurch/collections/internal/linkedlist"
 )
 
+var ErrIndexRange = errors.New("index specified out of bounds")
+
+// items is a container for multiple linked list instances.
 type items struct {
 	data []*linkedlist.List
 	len  uint32
 }
 
+// newItems is a constructor for the items struct.
 func newItems() *items {
 	return &items{
 		data: make([]*linkedlist.List, 0),
@@ -41,8 +46,12 @@ func newItems() *items {
 	}
 }
 
-func (n *items) get(i uint32) *linkedlist.List {
-	return n.data[i]
+// get returns a linked list from data located at index i.
+func (n *items) get(i uint32) (*linkedlist.List, error) {
+	if i > n.len {
+		return nil, ErrIndexRange
+	}
+	return n.data[i], nil
 }
 
 func (n *items) remove(i uint32) {
@@ -95,12 +104,14 @@ func (h *Holdings) Get(key string) (*linkedlist.List, error) {
 	}
 
 	h.Lock()
-	list = h.items.get(i)
+	if list, err = h.items.get(i); err != nil {
+		return list, err
+	}
 	h.Unlock()
 	return list, nil
 }
 
-// Insert a new
+// Insert a holding into a Holdings's items linked list.
 func (h *Holdings) Insert(holding instruments.Holding) (err error) {
 	var i uint32
 	h.Lock()
@@ -113,6 +124,8 @@ func (h *Holdings) Insert(holding instruments.Holding) (err error) {
 	return nil
 }
 
+// Remove a holding into a Holdings's items linked list.
+// If nothing can be removed, return error.
 func (h *Holdings) Remove(key string) (err error) {
 	var i uint32
 

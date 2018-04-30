@@ -60,31 +60,6 @@ func mockSummary() *instruments.Summary {
 		MaxBid: metric, MinBid: metric, MaxAsk: metric, MinAsk: metric,
 	}
 }
-func Test_items_get(t *testing.T) {
-	mockedItems := mockItems()
-	sum := mockSummary()
-	newList := linkedlist.NewLinkedList(*sum)
-	mockedItems.data = append(mockedItems.data, newList)
-
-	type args struct {
-		i uint32
-	}
-	tests := []struct {
-		name string
-		n    *items
-		args args
-		want *linkedlist.List
-	}{
-		{"base case", mockedItems, args{0}, newList},
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			if got := tt.n.get(tt.args.i); !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("items.get() = %v, want %v", got, tt.want)
-			}
-		})
-	}
-}
 
 func Test_items_remove(t *testing.T) {
 	mockedItems := mockItems()
@@ -279,6 +254,47 @@ func TestNew(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			if got := New(); !reflect.DeepEqual(got, tt.want) {
 				t.Errorf("New() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
+func Test_items_get(t *testing.T) {
+	mockedItems := mockItems()
+	sum := mockSummary()
+	newList := linkedlist.NewLinkedList(*sum)
+	mockedItems.data = append(mockedItems.data, newList)
+
+	type fields struct {
+		data []*linkedlist.List
+		len  uint32
+	}
+	type args struct {
+		i uint32
+	}
+	tests := []struct {
+		name    string
+		fields  fields
+		args    args
+		want    *linkedlist.List
+		wantErr bool
+	}{
+		{"base case", fields{mockedItems.data, mockedItems.len}, args{0}, newList, false},
+		{"err case", fields{mockedItems.data, mockedItems.len}, args{1}, nil, true},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			n := &items{
+				data: tt.fields.data,
+				len:  tt.fields.len,
+			}
+			got, err := n.get(tt.args.i)
+			if (err != nil) != tt.wantErr {
+				t.Errorf("items.get() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+			if !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("items.get() = %v, want %v", got, tt.want)
 			}
 		})
 	}

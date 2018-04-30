@@ -89,7 +89,7 @@ func (c *Cache) Put(key string) (uint32, error) {
 	default:
 		i, c.openSlots = c.openSlots[0], c.openSlots[1:]
 	}
-	// Check to see if key already exisits, if so throw error.
+	// Check to see if key already exists, if so throw error.
 	if _, ok := c.items[key]; ok {
 		c.Unlock()
 		return 0, errors.Wrap(ErrKeyExists, "in Cache's KeyMap")
