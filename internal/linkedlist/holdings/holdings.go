@@ -138,3 +138,18 @@ func (h *Holdings) Remove(key string) (err error) {
 	h.Unlock()
 	return nil
 }
+
+// Update takes a quote as input and updates
+// the items list with new quoted data.
+// If the cache does not contain an entry with the quote's name,
+// method will return error; otherwise nil.
+func (h *Holdings) Update(quote instruments.Quote) error {
+	var i, err = h.cache.Get(quote.Name)
+	if err != nil {
+		return err
+	}
+	h.Lock()
+	h.data[i].UpdateMetrics(quote.Bid.Price, quote.Ask.Price, quote.Timestamp)
+	h.Unlock()
+	return nil
+}
