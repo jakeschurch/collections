@@ -18,46 +18,35 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-package holdinglist
+package linkedlist
 
 import (
-	"sync"
-
-	"github.com/jakeschurch/collections/internal/cache"
-	"github.com/jakeschurch/collections/internal/linkedlist"
+	"github.com/jakeschurch/instruments"
 )
 
-// Holdings is a collection that stores a cache and list.
-type Holdings struct {
-	sync.Mutex
-	cache *cache.Cache
-	list  []*linkedlist.List
+// HoldingNode is an element associated within a LinkedList.
+type HoldingNode struct {
+	instruments.Holding
+	next, prev *HoldingNode
 }
 
-func New() *Holdings {
-	return &Holdings{
-		cache: cache.New(),
-		list:  make([]*linkedlist.List, 0),
+// NewNode returns a new reference to a Holding node.
+func NewNode(h instruments.Holding, prev, next *HoldingNode) *HoldingNode {
+	var node = &HoldingNode{
+		Holding: h, next: next, prev: prev,
 	}
-}
-
-func (h *Holdings) Get(key string) (*linkedlist.List, error) {
-	var list *linkedlist.List
-
-	var i, err = h.cache.Get(key)
-	if err != nil {
-		return nil, err
+	if x := node.prev; x != nil {
+		x.next = node
 	}
-
-	h.Lock()
-	list = h.list[i]
-	h.Unlock()
-	return list, nil
+	return node
 }
 
-func (h *Holdings) Insert(key string) error {
-	return nil
+// Next returns a reference to a node's next HoldingNode pointer.
+func (node *HoldingNode) Next() *HoldingNode {
+	return node.next
 }
-func (h *Holdings) Remove(key string) error {
-	return nil
+
+// Prev returns a reference to a node's prev HoldingNode pointer.
+func (node *HoldingNode) Prev() *HoldingNode {
+	return node.prev
 }
