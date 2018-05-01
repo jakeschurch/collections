@@ -18,7 +18,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-package linkedlist
+package holdingnode
 
 import (
 	"reflect"
@@ -41,7 +41,7 @@ func TestHoldingNode_Next(t *testing.T) {
 	secondNode := NewNode(*mockHolding(), firstNode, nil)
 
 	type fields struct {
-		Holding instruments.Holding
+		Holding *instruments.Holding
 		next    *HoldingNode
 		prev    *HoldingNode
 	}
@@ -50,7 +50,7 @@ func TestHoldingNode_Next(t *testing.T) {
 		fields fields
 		want   *HoldingNode
 	}{
-		{"next is nil", fields{*mockHolding(), nil, nil}, nil},
+		{"next is nil", fields{mockHolding(), nil, nil}, nil},
 		{"next is not nil", fields{firstNode.Holding, secondNode, nil}, secondNode},
 	}
 	for _, tt := range tests {
@@ -72,7 +72,7 @@ func TestHoldingNode_Prev(t *testing.T) {
 	secondNode := NewNode(*mockHolding(), firstNode, nil)
 
 	type fields struct {
-		Holding instruments.Holding
+		Holding *instruments.Holding
 		next    *HoldingNode
 		prev    *HoldingNode
 	}
@@ -81,7 +81,7 @@ func TestHoldingNode_Prev(t *testing.T) {
 		fields fields
 		want   *HoldingNode
 	}{
-		{"prev is nil", fields{*mockHolding(), nil, nil}, nil},
+		{"prev is nil", fields{mockHolding(), nil, nil}, nil},
 		{"prev is not nil", fields{secondNode.Holding, nil, firstNode}, firstNode},
 	}
 	for _, tt := range tests {
@@ -109,7 +109,7 @@ func TestNewNode(t *testing.T) {
 		args args
 		want *HoldingNode
 	}{
-		// TODO: Add test cases.
+		{"base case", args{*mockHolding(), nil, nil}, &HoldingNode{mockHolding(), nil, nil}},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
