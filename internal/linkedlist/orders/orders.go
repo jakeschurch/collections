@@ -94,46 +94,46 @@ func New() *Orders {
 
 // Get returns a list associated with a key from Orders.list.
 // If none are associated with specific key, return nil.
-func (h *Orders) Get(key string) (*list, error) {
+func (o *Orders) Get(key string) (*list, error) {
 	var list *list
 
-	var i, err = h.cache.Get(key)
+	var i, err = o.cache.Get(key)
 	if err != nil {
 		return nil, err
 	}
 
-	h.Lock()
-	if list, err = h.items.get(i); err != nil {
+	o.Lock()
+	if list, err = o.items.get(i); err != nil {
 		return list, err
 	}
-	h.Unlock()
+	o.Unlock()
 	return list, nil
 }
 
 // Insert a order into a Orders's items linked list.
-func (h *Orders) Insert(order instruments.Order) (err error) {
+func (o *Orders) Insert(order instruments.Order) (err error) {
 	var i uint32
-	h.Lock()
-	if i, err = h.cache.Put(order.Name); err != nil {
-		h.Unlock()
+	o.Lock()
+	if i, err = o.cache.Put(order.Name); err != nil {
+		o.Unlock()
 		return err
 	}
-	h.items.insert(order, i)
-	h.Unlock()
+	o.items.insert(order, i)
+	o.Unlock()
 	return nil
 }
 
 // Remove a order into a Orders's items linked list.
 // If nothing can be removed, return error.
-func (h *Orders) Remove(key string) (err error) {
+func (o *Orders) Remove(key string) (err error) {
 	var i uint32
 
-	h.Lock()
-	if i, err = h.cache.Remove(key); err != nil {
-		h.Unlock()
+	o.Lock()
+	if i, err = o.cache.Remove(key); err != nil {
+		o.Unlock()
 		return err
 	}
-	h.items.remove(i)
-	h.Unlock()
+	o.items.remove(i)
+	o.Unlock()
 	return nil
 }
