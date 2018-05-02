@@ -56,7 +56,7 @@ func Test_keyIndex_insertAndSort(t *testing.T) {
 
 func TestCache_Put(t *testing.T) {
 	type fields struct {
-		items     keyMap
+		items     map[string]uint32
 		openSlots keyIndex
 		n         uint32
 	}
@@ -70,12 +70,12 @@ func TestCache_Put(t *testing.T) {
 		wantErr bool
 	}{
 		{"base case",
-			fields{openSlots: make(keyIndex, 0), items: make(keyMap), n: 0},
+			fields{openSlots: make(keyIndex, 0), items: make(map[string]uint32), n: 0},
 			args{"GOOGL"}, false},
-		{"key already exists in keyMap",
-			fields{openSlots: make(keyIndex, 0), items: keyMap{"GOOGL": 0}, n: 1}, args{"GOOGL"}, true},
+		{"key already exists in map[string]uint32",
+			fields{openSlots: make(keyIndex, 0), items: map[string]uint32{"GOOGL": 0}, n: 1}, args{"GOOGL"}, true},
 		{"take index from openSlots",
-			fields{openSlots: append(make(keyIndex, 1), 1), items: keyMap{"GOOGL": 0}, n: 2}, args{"GOOG"}, false},
+			fields{openSlots: append(make(keyIndex, 1), 1), items: map[string]uint32{"GOOGL": 0}, n: 2}, args{"GOOG"}, false},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -93,7 +93,7 @@ func TestCache_Put(t *testing.T) {
 
 func TestCache_Get(t *testing.T) {
 	type fields struct {
-		items     keyMap
+		items     map[string]uint32
 		openSlots keyIndex
 		n         uint32
 	}
@@ -108,10 +108,10 @@ func TestCache_Get(t *testing.T) {
 		wantErr bool
 	}{
 		{"base case",
-			fields{openSlots: make(keyIndex, 0), items: keyMap{"GOOGL": 0}, n: 0},
+			fields{openSlots: make(keyIndex, 0), items: map[string]uint32{"GOOGL": 0}, n: 0},
 			args{"GOOGL"}, 0, false},
 		{"key not found",
-			fields{openSlots: make(keyIndex, 0), items: make(keyMap), n: 0},
+			fields{openSlots: make(keyIndex, 0), items: make(map[string]uint32), n: 0},
 			args{"GOOGL"}, 0, true},
 	}
 	for _, tt := range tests {
@@ -135,7 +135,7 @@ func TestCache_Get(t *testing.T) {
 
 func TestCache_Remove(t *testing.T) {
 	type fields struct {
-		items     keyMap
+		items     map[string]uint32
 		openSlots keyIndex
 		n         uint32
 	}
@@ -149,10 +149,10 @@ func TestCache_Remove(t *testing.T) {
 		wantErr bool
 	}{
 		{"base case",
-			fields{openSlots: make(keyIndex, 0), items: keyMap{"GOOGL": 0}, n: 0},
+			fields{openSlots: make(keyIndex, 0), items: map[string]uint32{"GOOGL": 0}, n: 0},
 			args{"GOOGL"}, false},
 		{"key not found",
-			fields{openSlots: make(keyIndex, 0), items: make(keyMap), n: 0},
+			fields{openSlots: make(keyIndex, 0), items: make(map[string]uint32), n: 0},
 			args{"GOOGL"}, true},
 	}
 	for _, tt := range tests {
