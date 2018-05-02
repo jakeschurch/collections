@@ -18,22 +18,22 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-package linkedlist
+package holdings
 
 import (
 	"github.com/jakeschurch/instruments"
 )
 
-// HoldingNode is an element associated within a LinkedList.
-type HoldingNode struct {
-	instruments.Holding
-	next, prev *HoldingNode
+// node is an element associated within a LinkedList.
+type node struct {
+	*instruments.Holding
+	next, prev *node
 }
 
-// NewNode returns a new reference to a Holding node.
-func NewNode(h instruments.Holding, prev, next *HoldingNode) *HoldingNode {
-	var node = &HoldingNode{
-		Holding: h, next: next, prev: prev,
+// Newnode returns a new reference to a Holding node.
+func NewNode(h instruments.Holding, prev, next *node) *node {
+	var node = &node{
+		Holding: &h, next: next, prev: prev,
 	}
 	if x := node.prev; x != nil {
 		x.next = node
@@ -41,12 +41,12 @@ func NewNode(h instruments.Holding, prev, next *HoldingNode) *HoldingNode {
 	return node
 }
 
-// Next returns a reference to a node's next HoldingNode pointer.
-func (node *HoldingNode) Next() *HoldingNode {
+// Next returns a reference to a node's next Holdingnode pointer.
+func (node *node) Next() *node {
 	return node.next
 }
 
-// Prev returns a reference to a node's prev HoldingNode pointer.
-func (node *HoldingNode) Prev() *HoldingNode {
+// Prev returns a reference to a node's prev Holdingnode pointer.
+func (node *node) Prev() *node {
 	return node.prev
 }

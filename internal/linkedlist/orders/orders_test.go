@@ -18,12 +18,11 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-package holdings
+package orders
 
 import (
 	"reflect"
 	"testing"
-	"time"
 
 	"github.com/jakeschurch/collections/internal/cache"
 	"github.com/jakeschurch/instruments"
@@ -51,18 +50,9 @@ func Test_newitems(t *testing.T) {
 	}
 }
 
-func mockSummary() *instruments.Summary {
-	newPrice := instruments.NewPrice(10.00)
-	metric := &instruments.SummaryMetric{Price: newPrice, Date: time.Time{}}
-	return &instruments.Summary{
-		Name: "Google", N: 0, Volume: instruments.NewVolume(10.00), AvgAsk: &newPrice, AvgBid: &newPrice,
-		MaxBid: metric, MinBid: metric, MaxAsk: metric, MinAsk: metric,
-	}
-}
-
 func Test_items_remove(t *testing.T) {
 	mockedItems := mockItems()
-	NewList := NewList(*mockSummary())
+	NewList := NewList()
 	mockedItems.data = append(mockedItems.data, NewList)
 
 	type args struct {
@@ -84,7 +74,7 @@ func Test_items_remove(t *testing.T) {
 
 func Test_items_insert(t *testing.T) {
 	type args struct {
-		holding instruments.Holding
+		holding instruments.Order
 		i       uint32
 	}
 	tests := []struct {
@@ -92,104 +82,106 @@ func Test_items_insert(t *testing.T) {
 		n    *items
 		args args
 	}{
-		{"base case", mockItems(), args{*mockHolding(), 0}},
-		{"need to grow slice", mockItems(), args{*mockHolding(), 2}},
-		{"just push", mockItems(), args{*mockHolding(), 0}},
+		{"base case", mockItems(), args{*mockOrder(), 0}},
+		{"need to grow slice", mockItems(), args{*mockOrder(), 2}},
+		{"just push", mockItems(), args{*mockOrder(), 0}},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			if tt.name == "just push" {
 				tt.n.data = make([]*list, 1)
-				tt.n.data[0] = NewList(*mockSummary())
+				tt.n.data[0] = NewList()
 			}
 			tt.n.insert(tt.args.holding, tt.args.i)
 		})
 	}
 }
 
-func mockHoldings() *Holdings {
-	return &Holdings{
+func mockOrders() *Orders {
+	return &Orders{
 		cache: cache.New(),
 		items: newItems(),
 	}
 }
-func TestHoldings_Get(t *testing.T) {
-	mockedHoldings := mockHoldings()
-	mockedHoldings.Insert(*mockHolding())
+func TestOrders_Get(t *testing.T) {
+	mockedOrders := mockOrders()
+	mockedOrders.Insert(*mockOrder())
 
 	type args struct {
 		key string
 	}
 	tests := []struct {
 		name    string
-		h       *Holdings
+		h       *Orders
 		args    args
 		want    *list
 		wantErr bool
 	}{
-		{"base case", mockedHoldings, args{"Google"}, mockedHoldings.data[0], false},
+		{"base case", mockedOrders, args{"GOOGL"}, mockedOrders.data[0], false},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			got, err := tt.h.Get(tt.args.key)
 			if (err != nil) != tt.wantErr {
-				t.Errorf("Holdings.Get() error = %v, wantErr %v", err, tt.wantErr)
+				t.Errorf("Orders.Get() error = %v, wantErr %v", err, tt.wantErr)
 				return
 			}
 			if !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("Holdings.Get() = %v, want %v", got, tt.want)
+				t.Errorf("Orders.Get() = %v, want %v", got, tt.want)
 			}
 		})
 	}
 }
 
-func TestHoldings_Insert(t *testing.T) {
-	mockedHoldings := mockHoldings()
-	mockedHoldings.data = append(mockedHoldings.data, NewList(*mockSummary()))
-	mockedHoldings.data[0].Push(NewNode(*mockHolding(), nil, nil))
-	mockedHoldings.cache.Put(mockedHoldings.data[0].Name)
+func TestOrders_Insert(t *testing.T) {
+	mockedOrders := mockOrders()
+	mockedOrders.data = append(mockedOrders.data, NewList())
+	mockedOrders.data[0].Push(NewNode(*mockOrder(), nil, nil))
+	node, _ := mockedOrders.data[0].Peek()
+	mockedOrders.cache.Put(node.Name)
 
 	type args struct {
-		holding instruments.Holding
+		holding instruments.Order
 	}
 	tests := []struct {
 		name    string
-		h       *Holdings
+		h       *Orders
 		args    args
 		wantErr bool
 	}{
-		{"base case", mockHoldings(), args{*mockHolding()}, false},
+		{"base case", mockOrders(), args{*mockOrder()}, false},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			if err := tt.h.Insert(tt.args.holding); (err != nil) != tt.wantErr {
-				t.Errorf("Holdings.Insert() error = %v, wantErr %v", err, tt.wantErr)
+				t.Errorf("Orders.Insert() error = %v, wantErr %v", err, tt.wantErr)
 			}
 		})
 	}
 }
 
-func TestHoldings_Remove(t *testing.T) {
-	mockedHoldings := mockHoldings()
-	mockedHoldings.data = append(mockedHoldings.data, NewList(*mockSummary()))
-	mockedHoldings.data[0].Push(NewNode(*mockHolding(), nil, nil))
-	mockedHoldings.cache.Put(mockedHoldings.data[0].Name)
+func TestOrders_Remove(t *testing.T) {
+	mockedOrders := mockOrders()
+	mockedOrders.data = append(mockedOrders.data, NewList())
+	mockedOrders.data[0].Push(NewNode(*mockOrder(), nil, nil))
+	node, _ := mockedOrders.data[0].Peek()
+	mockedOrders.cache.Put(node.Name)
 
 	type args struct {
 		key string
 	}
 	tests := []struct {
 		name    string
-		h       *Holdings
+		h       *Orders
 		args    args
 		wantErr bool
 	}{
-		{"base case", mockedHoldings, args{"Google"}, false},
+		{"base case", mockedOrders, args{"GOOGL"}, false},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			if err := tt.h.Remove(tt.args.key); (err != nil) != tt.wantErr {
-				t.Errorf("Holdings.Remove() error = %v, wantErr %v", err, tt.wantErr)
+				t.Errorf("Orders.Remove() error = %v, wantErr %v", err, tt.wantErr)
 			}
 		})
 	}
@@ -235,9 +227,9 @@ func Test_items_grow(t *testing.T) {
 func TestNew(t *testing.T) {
 	tests := []struct {
 		name string
-		want *Holdings
+		want *Orders
 	}{
-		{"base case", &Holdings{
+		{"base case", &Orders{
 			cache: cache.New(),
 			items: newItems(),
 		}},
@@ -253,7 +245,7 @@ func TestNew(t *testing.T) {
 
 func Test_items_get(t *testing.T) {
 	mockedItems := mockItems()
-	NewList := NewList(*mockSummary())
+	NewList := NewList()
 	mockedItems.data = append(mockedItems.data, NewList)
 
 	type fields struct {
@@ -286,27 +278,6 @@ func Test_items_get(t *testing.T) {
 			}
 			if !reflect.DeepEqual(got, tt.want) {
 				t.Errorf("items.get() = %v, want %v", got, tt.want)
-			}
-		})
-	}
-}
-
-func TestHoldings_Update(t *testing.T) {
-	type args struct {
-		quote instruments.Quote
-	}
-	tests := []struct {
-		name    string
-		h       *Holdings
-		args    args
-		wantErr bool
-	}{
-		// TODO: Add test cases.
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			if err := tt.h.Update(tt.args.quote); (err != nil) != tt.wantErr {
-				t.Errorf("Holdings.Update() error = %v, wantErr %v", err, tt.wantErr)
 			}
 		})
 	}

@@ -18,7 +18,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-package linkedlist
+package holdings
 
 import (
 	"reflect"
@@ -41,27 +41,27 @@ func TestHoldingNode_Next(t *testing.T) {
 	secondNode := NewNode(*mockHolding(), firstNode, nil)
 
 	type fields struct {
-		Holding instruments.Holding
-		next    *HoldingNode
-		prev    *HoldingNode
+		Holding *instruments.Holding
+		next    *node
+		prev    *node
 	}
 	tests := []struct {
 		name   string
 		fields fields
-		want   *HoldingNode
+		want   *node
 	}{
-		{"next is nil", fields{*mockHolding(), nil, nil}, nil},
+		{"next is nil", fields{mockHolding(), nil, nil}, nil},
 		{"next is not nil", fields{firstNode.Holding, secondNode, nil}, secondNode},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			node := &HoldingNode{
+			node := &node{
 				Holding: tt.fields.Holding,
 				next:    tt.fields.next,
 				prev:    tt.fields.prev,
 			}
 			if got := node.Next(); !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("HoldingNode.Next() = %v, want %v", got, tt.want)
+				t.Errorf("node.Next() = %v, want %v", got, tt.want)
 			}
 		})
 	}
@@ -72,27 +72,27 @@ func TestHoldingNode_Prev(t *testing.T) {
 	secondNode := NewNode(*mockHolding(), firstNode, nil)
 
 	type fields struct {
-		Holding instruments.Holding
-		next    *HoldingNode
-		prev    *HoldingNode
+		Holding *instruments.Holding
+		next    *node
+		prev    *node
 	}
 	tests := []struct {
 		name   string
 		fields fields
-		want   *HoldingNode
+		want   *node
 	}{
-		{"prev is nil", fields{*mockHolding(), nil, nil}, nil},
+		{"prev is nil", fields{mockHolding(), nil, nil}, nil},
 		{"prev is not nil", fields{secondNode.Holding, nil, firstNode}, firstNode},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			node := &HoldingNode{
+			node := &node{
 				Holding: tt.fields.Holding,
 				next:    tt.fields.next,
 				prev:    tt.fields.prev,
 			}
 			if got := node.Prev(); !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("HoldingNode.Prev() = %v, want %v", got, tt.want)
+				t.Errorf("node.Prev() = %v, want %v", got, tt.want)
 			}
 		})
 	}
@@ -101,20 +101,54 @@ func TestHoldingNode_Prev(t *testing.T) {
 func TestNewNode(t *testing.T) {
 	type args struct {
 		h    instruments.Holding
-		prev *HoldingNode
-		next *HoldingNode
+		prev *node
+		next *node
 	}
 	tests := []struct {
 		name string
 		args args
-		want *HoldingNode
+		want *node
 	}{
-		// TODO: Add test cases.
+		{"base case", args{*mockHolding(), nil, nil}, &node{mockHolding(), nil, nil}},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			if got := NewNode(tt.args.h, tt.args.prev, tt.args.next); !reflect.DeepEqual(got, tt.want) {
 				t.Errorf("NewNode() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
+func Test_node_Next(t *testing.T) {
+	tests := []struct {
+		name string
+		node *node
+		want *node
+	}{
+		// TODO: Add test cases.
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := tt.node.Next(); !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("node.Next() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
+func Test_node_Prev(t *testing.T) {
+	tests := []struct {
+		name string
+		node *node
+		want *node
+	}{
+		// TODO: Add test cases.
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := tt.node.Prev(); !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("node.Prev() = %v, want %v", got, tt.want)
 			}
 		})
 	}
