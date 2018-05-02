@@ -168,3 +168,25 @@ func TestCache_Remove(t *testing.T) {
 		})
 	}
 }
+
+func BenchmarkCache_Put(b *testing.B) {
+	var c = New()
+	for i := 0; i < b.N; i++ {
+		c.Put("GOOGL")
+	}
+}
+
+func BenchmarkCache_Get(b *testing.B) {
+	var c = New()
+	c.Put("GOOGL")
+	for i := 0; i < b.N; i++ {
+		c.Get("GOOGL")
+	}
+}
+
+func BenchmarkCache_Remove(b *testing.B) {
+	var c = New()
+	for i := 0; i < b.N; i++ {
+		c.Remove("GOOGL")
+	}
+}

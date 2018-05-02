@@ -95,6 +95,7 @@ func (c *Cache) Put(key string) (uint32, error) {
 		return 0, errors.Wrap(ErrKeyExists, "in Cache's KeyMap")
 	}
 	c.items[key] = i
+	c.Unlock()
 	return i, nil
 }
 

@@ -18,7 +18,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-package linkedlist
+package holdings
 
 import (
 	"errors"
@@ -27,32 +27,32 @@ import (
 	"github.com/jakeschurch/instruments"
 )
 
-var ErrListEmpty = errors.New("no elements in linkedlist")
+var ErrListEmpty = errors.New("no elements in container")
 
-// List is a collection of HoldingNodes,
+// list is a collection of HoldingNodes,
 // as well as aggregate metrics on the collection of holdings.
-type List struct {
+type list struct {
 	sync.RWMutex
 	*instruments.Summary
-	head *HoldingNode
-	tail *HoldingNode
+	head *node
+	tail *node
 }
 
-// NewLinkedList constructs a new LinkedList instance.
-func NewLinkedList(summary instruments.Summary) *List {
-	return &List{
+// NewList constructs a new holdings.List instance.
+func NewList(summary instruments.Summary) *list {
+	return &list{
 		Summary: &summary,
-		head:    &HoldingNode{next: nil, prev: nil},
-		tail:    &HoldingNode{next: nil, prev: nil},
+		head:    &node{next: nil, prev: nil},
+		tail:    &node{next: nil, prev: nil},
 	}
 }
 
-// Push inserts node into a LinkedList.
-func (l *List) Push(node *HoldingNode) {
-	var last *HoldingNode
+// Push inserts a node into a holdings.List.
+func (l *list) Push(data *node) {
+	var last *node
 
 	l.Lock()
-	l.Volume += node.Volume
+	l.Volume += data.Volume
 
 	switch {
 	case l.head.next == nil:
@@ -60,20 +60,20 @@ func (l *List) Push(node *HoldingNode) {
 	default: // first case false
 		last = l.tail
 	}
-	last.next = node
-	node.prev = last
+	last.next = data
+	data.prev = last
 	l.tail = last.next
 	l.Unlock()
 }
 
 // Pop returns last element in linkedList.
 // Returns nil if no elements in list besides head and tail.
-func (l *List) Pop() (*HoldingNode, error) {
+func (l *list) Pop() (*node, error) {
 	var last = l.tail
 	l.Lock()
 
 	// Check to see if list is empty.
-	if last.prev == nil {
+	if last.prev == nil || last.Holding == nil {
 		l.Unlock()
 		return nil, ErrListEmpty
 	}
@@ -81,19 +81,19 @@ func (l *List) Pop() (*HoldingNode, error) {
 
 	// Check to see if list has only one element.
 	if last.prev == l.head {
-		l.tail = &HoldingNode{next: nil, prev: nil}
+		l.tail = &node{next: nil, prev: nil}
 		return last, nil
 	}
 
 	l.tail = last.prev
-	l.tail.next = &HoldingNode{next: nil, prev: nil}
+	l.tail.next = &node{next: nil, prev: nil}
 	l.Unlock()
 	return last, nil
 }
 
-// Peek returns a reference to the tail node in a Linked List.
+// Peek returns a reference to the tail node in a Linked list.
 // Returns nil if list is empty.
-func (l *List) Peek() (*HoldingNode, error) {
+func (l *list) Peek() (*node, error) {
 	if l.tail.prev == nil {
 		return nil, ErrListEmpty
 	}
