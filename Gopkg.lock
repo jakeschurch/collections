@@ -7,8 +7,8 @@
     ".",
     "internal/ordering"
   ]
-  revision = "11822e61044fc4f9236053d4af95dc8fe3bd4f44"
-  version = "v1.0.2"
+  revision = "2572a0316178ec940b0418bd2e685956cdf4e7bf"
+  version = "v1.0.6"
 
 [[projects]]
   name = "github.com/pkg/errors"
@@ -19,6 +19,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "a8224a877afdc1d22d9ff913982d60abfc5d763eb926f59da1403b923ae16a68"
+  inputs-digest = "6fe5ad2f83da0b09384a2718d9b08fefaaf7d4d5ba08a2d2c03b703838ecd813"
   solver-name = "gps-cdcl"
   solver-version = 1

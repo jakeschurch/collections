@@ -18,7 +18,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-package linkedlist
+package holdings
 
 import (
 	"reflect"
@@ -27,47 +27,42 @@ import (
 	"github.com/jakeschurch/instruments"
 )
 
-func mockSummary() instruments.Summary {
-	return instruments.Summary{
-		N:      0,
-		Volume: instruments.NewVolume(0),
-	}
-}
-func TestNewLinkedList(t *testing.T) {
-	mockedSummary := mockSummary()
+func TestNewList(t *testing.T) {
 	type args struct {
 		summary instruments.Summary
 	}
 	tests := []struct {
 		name string
 		args args
-		want *List
+		want *list
 	}{
-		{"base case", args{mockSummary()},
-			&List{Summary: &mockedSummary,
-				head: &HoldingNode{next: nil, prev: nil},
-				tail: &HoldingNode{next: nil, prev: nil}}},
+		{"base case", args{*mockSummary()},
+			&list{Summary: mockSummary(),
+				head: &node{Holding: nil, next: nil, prev: nil},
+				tail: &node{Holding: nil, next: nil, prev: nil}}},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if got := NewLinkedList(tt.args.summary); !reflect.DeepEqual(got, tt.want) {
+			if got := NewList(tt.args.summary); !reflect.DeepEqual(got, tt.want) {
 				t.Errorf("NewLinkedList() = %v, want %v", got, tt.want)
 			}
 		})
 	}
 }
 
-func TestLinkedList_Push(t *testing.T) {
-	mockedSummary := mockSummary()
+func Test_list_Push(t *testing.T) {
 	mockedNode := NewNode(*mockHolding(), nil, nil)
+	mockedHead := &node{Holding: nil, next: nil, prev: nil}
+	mockedTail := &node{Holding: mockHolding(), next: nil, prev: mockedHead}
+	mockedHead.next = mockedTail
 
 	type fields struct {
 		Summary *instruments.Summary
-		head    *HoldingNode
-		tail    *HoldingNode
+		head    *node
+		tail    *node
 	}
 	type args struct {
-		node *HoldingNode
+		node *node
 	}
 	tests := []struct {
 		name   string
@@ -76,61 +71,66 @@ func TestLinkedList_Push(t *testing.T) {
 	}{
 		{"base case",
 			fields{
-				Summary: &mockedSummary,
-				head:    &HoldingNode{next: nil, prev: nil},
-				tail:    &HoldingNode{next: nil, prev: nil}},
+				Summary: mockSummary(),
+				head:    &node{Holding: nil, next: nil, prev: nil},
+				tail:    &node{Holding: nil, next: nil, prev: nil}},
+			args{mockedNode}},
+		{"tail not nil case",
+			fields{
+				Summary: mockSummary(),
+				head:    mockedHead,
+				tail:    mockedTail},
 			args{mockedNode}},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			l := &List{
+			l := &list{
 				Summary: tt.fields.Summary,
 				head:    tt.fields.head,
 				tail:    tt.fields.tail,
 			}
 			l.Push(tt.args.node)
 			if tt.name == "base case" && ((l.head.next == nil) || (l.tail == nil)) {
-				t.Error("HoldingNode.Push(): l.head.next should not be nil")
+				t.Error("node.Push(): l.head.next should not be nil")
 			}
 		})
 	}
 }
 
-func TestLinkedList_Pop(t *testing.T) {
-	mockedSummary := mockSummary()
-	mockedHead := &HoldingNode{next: nil, prev: nil}
-	mockedTail := &HoldingNode{next: nil, prev: mockedHead}
+func Test_list_Pop(t *testing.T) {
+	mockedHead := &node{Holding: nil, next: nil, prev: nil}
+	mockedTail := &node{Holding: mockHolding(), next: nil, prev: mockedHead}
 	mockedHead.next = mockedTail
 
-	newTail := &HoldingNode{next: nil, prev: mockedTail}
+	newTail := &node{Holding: mockHolding(), next: nil, prev: mockedTail}
 
 	type fields struct {
 		Summary *instruments.Summary
-		head    *HoldingNode
-		tail    *HoldingNode
+		head    *node
+		tail    *node
 	}
 	tests := []struct {
 		name    string
 		fields  fields
-		want    *HoldingNode
+		want    *node
 		wantErr bool
 	}{
-		{"base case", fields{Summary: &mockedSummary,
-			head: &HoldingNode{next: nil, prev: nil},
-			tail: &HoldingNode{next: nil, prev: nil}},
+		{"base case", fields{Summary: mockSummary(),
+			head: &node{Holding: nil, next: nil, prev: nil},
+			tail: &node{Holding: nil, next: nil, prev: nil}},
 			nil, true},
-		{"tail not nil", fields{Summary: &mockedSummary,
+		{"tail not nil", fields{Summary: mockSummary(),
 			head: mockedHead,
 			tail: mockedTail},
 			mockedTail, false},
-		{"3 elements", fields{Summary: &mockedSummary,
+		{"3 elements", fields{Summary: mockSummary(),
 			head: mockedHead,
 			tail: newTail},
 			newTail, false},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			l := &List{
+			l := &list{
 				Summary: tt.fields.Summary,
 				head:    tt.fields.head,
 				tail:    tt.fields.tail,
@@ -151,65 +151,55 @@ func TestLinkedList_Pop(t *testing.T) {
 	}
 }
 
-func TestList_Push(t *testing.T) {
-	type args struct {
-		node *HoldingNode
-	}
-	tests := []struct {
-		name string
-		l    *List
-		args args
-	}{
-		// TODO: Add test cases.
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			tt.l.Push(tt.args.node)
-		})
-	}
-}
+func Test_list_Peek(t *testing.T) {
+	mockedHead := &node{Holding: nil, next: nil, prev: nil}
+	mockedTail := &node{Holding: mockHolding(), next: nil, prev: mockedHead}
+	mockedHead.next = mockedTail
 
-func TestList_Pop(t *testing.T) {
+	newTail := &node{Holding: mockHolding(), next: nil, prev: mockedTail}
+
+	type fields struct {
+		Summary *instruments.Summary
+		head    *node
+		tail    *node
+	}
 	tests := []struct {
 		name    string
-		l       *List
-		want    *HoldingNode
+		fields  fields
+		want    *node
 		wantErr bool
 	}{
-		// TODO: Add test cases.
+		{"base case", fields{Summary: mockSummary(),
+			head: &node{Holding: nil, next: nil, prev: nil},
+			tail: &node{Holding: nil, next: nil, prev: nil}},
+			nil, true},
+		{"tail not nil", fields{Summary: mockSummary(),
+			head: mockedHead,
+			tail: mockedTail},
+			mockedTail, false},
+		{"3 elements", fields{Summary: mockSummary(),
+			head: mockedHead,
+			tail: newTail},
+			newTail, false},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got, err := tt.l.Pop()
+			l := &list{
+				Summary: tt.fields.Summary,
+				head:    tt.fields.head,
+				tail:    tt.fields.tail,
+			}
+			if tt.name == "3 elements" {
+				l.tail.prev = mockedTail
+			}
+
+			got, err := l.Peek()
 			if (err != nil) != tt.wantErr {
-				t.Errorf("List.Pop() error = %v, wantErr %v", err, tt.wantErr)
+				t.Errorf("LinkedList.Peek() error = %v, wantErr %v", err, tt.wantErr)
 				return
 			}
 			if !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("List.Pop() = %v, want %v", got, tt.want)
-			}
-		})
-	}
-}
-
-func TestList_Peek(t *testing.T) {
-	tests := []struct {
-		name    string
-		l       *List
-		want    *HoldingNode
-		wantErr bool
-	}{
-		// TODO: Add test cases.
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			got, err := tt.l.Peek()
-			if (err != nil) != tt.wantErr {
-				t.Errorf("List.Peek() error = %v, wantErr %v", err, tt.wantErr)
-				return
-			}
-			if !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("List.Peek() = %v, want %v", got, tt.want)
+				t.Errorf("LinkedList.Peek() = %v, want %v", got, tt.want)
 			}
 		})
 	}

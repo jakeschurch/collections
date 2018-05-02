@@ -26,13 +26,12 @@ import (
 	"time"
 
 	"github.com/jakeschurch/collections/internal/cache"
-	"github.com/jakeschurch/collections/internal/linkedlist"
 	"github.com/jakeschurch/instruments"
 )
 
 func mockItems() *items {
 	return &items{
-		data: make([]*linkedlist.List, 0),
+		data: make([]*list, 0),
 		len:  0,
 	}
 }
@@ -63,9 +62,8 @@ func mockSummary() *instruments.Summary {
 
 func Test_items_remove(t *testing.T) {
 	mockedItems := mockItems()
-	sum := mockSummary()
-	newList := linkedlist.NewLinkedList(*sum)
-	mockedItems.data = append(mockedItems.data, newList)
+	NewList := NewList(*mockSummary())
+	mockedItems.data = append(mockedItems.data, NewList)
 
 	type args struct {
 		i uint32
@@ -84,12 +82,6 @@ func Test_items_remove(t *testing.T) {
 	}
 }
 
-func mockHolding() instruments.Holding {
-	return instruments.Holding{
-		Name: "Google", Volume: instruments.NewVolume(20.00),
-		Buy: instruments.TxMetric{Price: instruments.NewPrice(15.00), Date: time.Time{}},
-	}
-}
 func Test_items_insert(t *testing.T) {
 	type args struct {
 		holding instruments.Holding
@@ -100,15 +92,15 @@ func Test_items_insert(t *testing.T) {
 		n    *items
 		args args
 	}{
-		{"base case", mockItems(), args{mockHolding(), 0}},
-		{"need to grow slice", mockItems(), args{mockHolding(), 2}},
-		{"just push", mockItems(), args{mockHolding(), 0}},
+		{"base case", mockItems(), args{*mockHolding(), 0}},
+		{"need to grow slice", mockItems(), args{*mockHolding(), 2}},
+		{"just push", mockItems(), args{*mockHolding(), 0}},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			if tt.name == "just push" {
-				tt.n.data = make([]*linkedlist.List, 1)
-				tt.n.data[0] = linkedlist.NewLinkedList(*mockSummary())
+				tt.n.data = make([]*list, 1)
+				tt.n.data[0] = NewList(*mockSummary())
 			}
 			tt.n.insert(tt.args.holding, tt.args.i)
 		})
@@ -123,7 +115,7 @@ func mockHoldings() *Holdings {
 }
 func TestHoldings_Get(t *testing.T) {
 	mockedHoldings := mockHoldings()
-	mockedHoldings.Insert(mockHolding())
+	mockedHoldings.Insert(*mockHolding())
 
 	type args struct {
 		key string
@@ -132,7 +124,7 @@ func TestHoldings_Get(t *testing.T) {
 		name    string
 		h       *Holdings
 		args    args
-		want    *linkedlist.List
+		want    *list
 		wantErr bool
 	}{
 		{"base case", mockedHoldings, args{"Google"}, mockedHoldings.data[0], false},
@@ -153,34 +145,31 @@ func TestHoldings_Get(t *testing.T) {
 
 func TestHoldings_Insert(t *testing.T) {
 	mockedHoldings := mockHoldings()
-	mockedHoldings.data = append(mockedHoldings.data, linkedlist.NewLinkedList(*mockSummary()))
-	mockedHoldings.data[0].Push(linkedlist.NewNode(mockHolding(), nil, nil))
+	mockedHoldings.data = append(mockedHoldings.data, NewList(*mockSummary()))
+	mockedHoldings.data[0].Push(NewNode(*mockHolding(), nil, nil))
 	mockedHoldings.cache.Put(mockedHoldings.data[0].Name)
 
 	type args struct {
 		holding instruments.Holding
 	}
 	tests := []struct {
-		name    string
-		h       *Holdings
-		args    args
-		wantErr bool
+		name string
+		h    *Holdings
+		args args
 	}{
-		{"base case", mockHoldings(), args{mockHolding()}, false},
+		{"base case", mockHoldings(), args{*mockHolding()}},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if err := tt.h.Insert(tt.args.holding); (err != nil) != tt.wantErr {
-				t.Errorf("Holdings.Insert() error = %v, wantErr %v", err, tt.wantErr)
-			}
+			tt.h.Insert(tt.args.holding)
 		})
 	}
 }
 
 func TestHoldings_Remove(t *testing.T) {
 	mockedHoldings := mockHoldings()
-	mockedHoldings.data = append(mockedHoldings.data, linkedlist.NewLinkedList(*mockSummary()))
-	mockedHoldings.data[0].Push(linkedlist.NewNode(mockHolding(), nil, nil))
+	mockedHoldings.data = append(mockedHoldings.data, NewList(*mockSummary()))
+	mockedHoldings.data[0].Push(NewNode(*mockHolding(), nil, nil))
 	mockedHoldings.cache.Put(mockedHoldings.data[0].Name)
 
 	type args struct {
@@ -209,7 +198,7 @@ func Test_newItems(t *testing.T) {
 		want *items
 	}{
 		{"base case", &items{
-			data: make([]*linkedlist.List, 0),
+			data: make([]*list, 0),
 			len:  0,
 		}},
 	}
@@ -261,12 +250,11 @@ func TestNew(t *testing.T) {
 
 func Test_items_get(t *testing.T) {
 	mockedItems := mockItems()
-	sum := mockSummary()
-	newList := linkedlist.NewLinkedList(*sum)
-	mockedItems.data = append(mockedItems.data, newList)
+	NewList := NewList(*mockSummary())
+	mockedItems.data = append(mockedItems.data, NewList)
 
 	type fields struct {
-		data []*linkedlist.List
+		data []*list
 		len  uint32
 	}
 	type args struct {
@@ -276,10 +264,10 @@ func Test_items_get(t *testing.T) {
 		name    string
 		fields  fields
 		args    args
-		want    *linkedlist.List
+		want    *list
 		wantErr bool
 	}{
-		{"base case", fields{mockedItems.data, mockedItems.len}, args{0}, newList, false},
+		{"base case", fields{mockedItems.data, mockedItems.len}, args{0}, NewList, false},
 		{"err case", fields{mockedItems.data, mockedItems.len}, args{1}, nil, true},
 	}
 	for _, tt := range tests {
@@ -295,6 +283,27 @@ func Test_items_get(t *testing.T) {
 			}
 			if !reflect.DeepEqual(got, tt.want) {
 				t.Errorf("items.get() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
+func TestHoldings_Update(t *testing.T) {
+	type args struct {
+		quote instruments.Quote
+	}
+	tests := []struct {
+		name    string
+		h       *Holdings
+		args    args
+		wantErr bool
+	}{
+		// TODO: Add test cases.
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if err := tt.h.Update(tt.args.quote); (err != nil) != tt.wantErr {
+				t.Errorf("Holdings.Update() error = %v, wantErr %v", err, tt.wantErr)
 			}
 		})
 	}

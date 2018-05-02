@@ -18,35 +18,38 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-package linkedlist
+package collections
 
 import (
 	"github.com/jakeschurch/instruments"
+
+	"github.com/jakeschurch/collections/internal/linkedlist/holdings"
 )
 
-// HoldingNode is an element associated within a LinkedList.
-type HoldingNode struct {
-	instruments.Holding
-	next, prev *HoldingNode
+type Portfolio struct {
+	Holdings *holdings.Holdings
 }
 
-// NewNode returns a new reference to a Holding node.
-func NewNode(h instruments.Holding, prev, next *HoldingNode) *HoldingNode {
-	var node = &HoldingNode{
-		Holding: h, next: next, prev: prev,
+// NewPortfolio constructs a new Portfolio instance.
+func NewPortfolio() *Portfolio {
+	return &Portfolio{
+		Holdings: holdings.New(),
 	}
-	if x := node.prev; x != nil {
-		x.next = node
-	}
-	return node
 }
 
-// Next returns a reference to a node's next HoldingNode pointer.
-func (node *HoldingNode) Next() *HoldingNode {
-	return node.next
+// Insert a new holding into a portfolio instance.
+func (p *Portfolio) Insert(holding instruments.Holding) {
+	p.Holdings.Insert(holding)
 }
 
-// Prev returns a reference to a node's prev HoldingNode pointer.
-func (node *HoldingNode) Prev() *HoldingNode {
-	return node.prev
+// Update aggregate holding data from quoted data.
+// Returns error if associated instrument not held,
+// otherwise returns nil.
+func (p *Portfolio) Update(quote instruments.Quote) error {
+	return p.Holdings.Update(quote)
+}
+
+// Remove a set of holdings from a portfolio.
+func (p *Portfolio) Remove(key string) error {
+	return p.Holdings.Remove(key)
 }
