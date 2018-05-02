@@ -18,7 +18,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-package holdings
+package orders
 
 import (
 	"errors"
@@ -57,14 +57,14 @@ func (n *items) remove(i uint32) {
 	n.data[i] = nil
 }
 
-func (n *items) insert(holding instruments.Holding, i uint32) {
-	var node = NewNode(holding, nil, nil)
+func (n *items) insert(order instruments.Order, i uint32) {
+	var node = NewNode(order, nil, nil)
 
 	if i >= n.len {
 		n.grow(i)
 	}
 	if n.data[i] == nil {
-		n.data[i] = NewList(*instruments.NewSummary(holding))
+		n.data[i] = NewList()
 	}
 	n.data[i].Push(node)
 }
@@ -77,24 +77,24 @@ func (n *items) grow(i uint32) {
 
 // ------------------------------------------------------------------
 
-// Holdings is a collection that stores a cache and list.
-type Holdings struct {
+// Orders is a collection that stores a cache and list.
+type Orders struct {
 	sync.Mutex
 	cache *cache.Cache
 	*items
 }
 
-// New returns a new Holdings instance.
-func New() *Holdings {
-	return &Holdings{
+// New returns a new Orders instance.
+func New() *Orders {
+	return &Orders{
 		cache: cache.New(),
 		items: newItems(),
 	}
 }
 
-// Get returns a list associated with a key from Holdings.list.
+// Get returns a list associated with a key from Orders.list.
 // If none are associated with specific key, return nil.
-func (h *Holdings) Get(key string) (*list, error) {
+func (h *Orders) Get(key string) (*list, error) {
 	var list *list
 
 	var i, err = h.cache.Get(key)
@@ -110,22 +110,22 @@ func (h *Holdings) Get(key string) (*list, error) {
 	return list, nil
 }
 
-// Insert a holding into a Holdings's items linked list.
-func (h *Holdings) Insert(holding instruments.Holding) (err error) {
+// Insert a order into a Orders's items linked list.
+func (h *Orders) Insert(order instruments.Order) (err error) {
 	var i uint32
 	h.Lock()
-	if i, err = h.cache.Put(holding.Name); err != nil {
+	if i, err = h.cache.Put(order.Name); err != nil {
 		h.Unlock()
 		return err
 	}
-	h.items.insert(holding, i)
+	h.items.insert(order, i)
 	h.Unlock()
 	return nil
 }
 
-// Remove a holding into a Holdings's items linked list.
+// Remove a order into a Orders's items linked list.
 // If nothing can be removed, return error.
-func (h *Holdings) Remove(key string) (err error) {
+func (h *Orders) Remove(key string) (err error) {
 	var i uint32
 
 	h.Lock()
@@ -134,21 +134,6 @@ func (h *Holdings) Remove(key string) (err error) {
 		return err
 	}
 	h.items.remove(i)
-	h.Unlock()
-	return nil
-}
-
-// Update takes a quote as input and updates
-// the items list with new quoted data.
-// If the cache does not contain an entry with the quote's name,
-// method will return error; otherwise nil.
-func (h *Holdings) Update(quote instruments.Quote) error {
-	var i, err = h.cache.Get(quote.Name)
-	if err != nil {
-		return err
-	}
-	h.Lock()
-	h.data[i].UpdateMetrics(quote.Bid.Price, quote.Ask.Price, quote.Timestamp)
 	h.Unlock()
 	return nil
 }

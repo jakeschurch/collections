@@ -18,22 +18,22 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-package ordernode
+package holdings
 
 import (
 	"github.com/jakeschurch/instruments"
 )
 
-// OrderNode is an element associated within a LinkedList.
-type OrderNode struct {
-	Order      *instruments.Order
-	next, prev *OrderNode
+// node is an element associated within a LinkedList.
+type node struct {
+	*instruments.Holding
+	next, prev *node
 }
 
-// NewNode returns a new reference to an OrderNode.
-func NewNode(o *instruments.Order, prev, next *OrderNode) *OrderNode {
-	var node = &OrderNode{
-		Order: o, next: next, prev: prev,
+// Newnode returns a new reference to a Holding node.
+func NewNode(h instruments.Holding, prev, next *node) *node {
+	var node = &node{
+		Holding: &h, next: next, prev: prev,
 	}
 	if x := node.prev; x != nil {
 		x.next = node
@@ -41,12 +41,12 @@ func NewNode(o *instruments.Order, prev, next *OrderNode) *OrderNode {
 	return node
 }
 
-// Next returns a reference to a HoldingNode's next Holdingnode pointer.
-func (node *OrderNode) Next() *OrderNode {
+// Next returns a reference to a node's next Holdingnode pointer.
+func (node *node) Next() *node {
 	return node.next
 }
 
-// Prev returns a reference to a HoldingNode's prev Holdingnode pointer.
-func (node *OrderNode) Prev() *OrderNode {
+// Prev returns a reference to a node's prev Holdingnode pointer.
+func (node *node) Prev() *node {
 	return node.prev
 }

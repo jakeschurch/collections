@@ -18,7 +18,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-package ordernode
+package orders
 
 import (
 	"reflect"
@@ -29,66 +29,67 @@ import (
 )
 
 func mockOrder() *instruments.Order {
-	return instruments.NewOrder("GOOGL", true, instruments.Market, instruments.NewPrice(15.00), instruments.NewVolume(10.00), time.Time{})
+	return instruments.NewOrder("GOOGL", true, instruments.Market, instruments.NewPrice(10.00), instruments.NewVolume(10.00), time.Time{})
 }
-func TestOrderNode_Next(t *testing.T) {
 
-	firstNode := NewNode(mockOrder(), nil, nil)
-	secondNode := NewNode(mockOrder(), firstNode, nil)
+func Test_node_Next(t *testing.T) {
+
+	firstNode := NewNode(*mockOrder(), nil, nil)
+	secondNode := NewNode(*mockOrder(), firstNode, nil)
 
 	type fields struct {
 		Order *instruments.Order
-		next  *OrderNode
-		prev  *OrderNode
+		next  *node
+		prev  *node
 	}
 	tests := []struct {
 		name   string
 		fields fields
-		want   *OrderNode
+		want   *node
 	}{
 		{"next is nil", fields{mockOrder(), nil, nil}, nil},
 		{"next is not nil", fields{firstNode.Order, secondNode, nil}, secondNode},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			node := &OrderNode{
+			node := &node{
 				Order: tt.fields.Order,
 				next:  tt.fields.next,
 				prev:  tt.fields.prev,
 			}
 			if got := node.Next(); !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("OrderNode.Next() = %v, want %v", got, tt.want)
+				t.Errorf("node.Next() = %v, want %v", got, tt.want)
 			}
 		})
 	}
 }
 
-func TestOrderNode_Prev(t *testing.T) {
-	firstNode := NewNode(mockOrder(), nil, nil)
-	secondNode := NewNode(mockOrder(), firstNode, nil)
+func Test_node_Prev(t *testing.T) {
+	firstNode := NewNode(*mockOrder(), nil, nil)
+	secondNode := NewNode(*mockOrder(), firstNode, nil)
 
 	type fields struct {
 		Order *instruments.Order
-		next  *OrderNode
-		prev  *OrderNode
+		next  *node
+		prev  *node
 	}
 	tests := []struct {
 		name   string
 		fields fields
-		want   *OrderNode
+		want   *node
 	}{
 		{"prev is nil", fields{mockOrder(), nil, nil}, nil},
 		{"prev is not nil", fields{secondNode.Order, nil, firstNode}, firstNode},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			node := &OrderNode{
+			node := &node{
 				Order: tt.fields.Order,
 				next:  tt.fields.next,
 				prev:  tt.fields.prev,
 			}
 			if got := node.Prev(); !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("OrderNode.Prev() = %v, want %v", got, tt.want)
+				t.Errorf("node.Prev() = %v, want %v", got, tt.want)
 			}
 		})
 	}
