@@ -153,18 +153,15 @@ func TestHoldings_Insert(t *testing.T) {
 		holding instruments.Holding
 	}
 	tests := []struct {
-		name    string
-		h       *Holdings
-		args    args
-		wantErr bool
+		name string
+		h    *Holdings
+		args args
 	}{
-		{"base case", mockHoldings(), args{*mockHolding()}, false},
+		{"base case", mockHoldings(), args{*mockHolding()}},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if err := tt.h.Insert(tt.args.holding); (err != nil) != tt.wantErr {
-				t.Errorf("Holdings.Insert() error = %v, wantErr %v", err, tt.wantErr)
-			}
+			tt.h.Insert(tt.args.holding)
 		})
 	}
 }

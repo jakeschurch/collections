@@ -31,9 +31,9 @@ type node struct {
 }
 
 // Newnode returns a new reference to a Order node.
-func NewNode(o instruments.Order, prev, next *node) *node {
+func NewNode(o *instruments.Order, prev, next *node) *node {
 	var node = &node{
-		Order: &o, next: next, prev: prev,
+		Order: o, next: next, prev: prev,
 	}
 	if x := node.prev; x != nil {
 		x.next = node

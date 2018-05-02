@@ -34,8 +34,8 @@ func mockOrder() *instruments.Order {
 
 func Test_node_Next(t *testing.T) {
 
-	firstNode := NewNode(*mockOrder(), nil, nil)
-	secondNode := NewNode(*mockOrder(), firstNode, nil)
+	firstNode := NewNode(mockOrder(), nil, nil)
+	secondNode := NewNode(mockOrder(), firstNode, nil)
 
 	type fields struct {
 		Order *instruments.Order
@@ -65,8 +65,8 @@ func Test_node_Next(t *testing.T) {
 }
 
 func Test_node_Prev(t *testing.T) {
-	firstNode := NewNode(*mockOrder(), nil, nil)
-	secondNode := NewNode(*mockOrder(), firstNode, nil)
+	firstNode := NewNode(mockOrder(), nil, nil)
+	secondNode := NewNode(mockOrder(), firstNode, nil)
 
 	type fields struct {
 		Order *instruments.Order
@@ -90,6 +90,28 @@ func Test_node_Prev(t *testing.T) {
 			}
 			if got := node.Prev(); !reflect.DeepEqual(got, tt.want) {
 				t.Errorf("node.Prev() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
+func TestNewNode(t *testing.T) {
+	type args struct {
+		o    *instruments.Order
+		prev *node
+		next *node
+	}
+	tests := []struct {
+		name string
+		args args
+		want *node
+	}{
+		// TODO: Add test cases.
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := NewNode(tt.args.o, tt.args.prev, tt.args.next); !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("NewNode() = %v, want %v", got, tt.want)
 			}
 		})
 	}

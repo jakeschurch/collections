@@ -38,8 +38,8 @@ func NewPortfolio() *Portfolio {
 }
 
 // Insert a new holding into a portfolio instance.
-func (p *Portfolio) Insert(holding instruments.Holding) error {
-	return p.Holdings.Insert(holding)
+func (p *Portfolio) Insert(holding instruments.Holding) {
+	p.Holdings.Insert(holding)
 }
 
 // Update aggregate holding data from quoted data.

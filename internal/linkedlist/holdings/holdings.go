@@ -111,16 +111,16 @@ func (h *Holdings) Get(key string) (*list, error) {
 }
 
 // Insert a holding into a Holdings's items linked list.
-func (h *Holdings) Insert(holding instruments.Holding) (err error) {
+func (h *Holdings) Insert(holding instruments.Holding) {
 	var i uint32
+	var err error
+
 	h.Lock()
 	if i, err = h.cache.Put(holding.Name); err != nil {
-		h.Unlock()
-		return err
+		i, _ = h.cache.Get(holding.Name)
 	}
 	h.items.insert(holding, i)
 	h.Unlock()
-	return nil
 }
 
 // Remove a holding into a Holdings's items linked list.

@@ -57,7 +57,7 @@ func (n *items) remove(i uint32) {
 	n.data[i] = nil
 }
 
-func (n *items) insert(order instruments.Order, i uint32) {
+func (n *items) insert(order *instruments.Order, i uint32) {
 	var node = NewNode(order, nil, nil)
 
 	if i >= n.len {
@@ -79,7 +79,7 @@ func (n *items) grow(i uint32) {
 
 // Orders is a collection that stores a cache and list.
 type Orders struct {
-	sync.Mutex
+	sync.RWMutex
 	cache *cache.Cache
 	*items
 }
@@ -94,46 +94,104 @@ func New() *Orders {
 
 // Get returns a list associated with a key from Orders.list.
 // If none are associated with specific key, return nil.
-func (o *Orders) Get(key string) (*list, error) {
+func (o *Orders) Get(key string) (uint32, *list, error) {
 	var list *list
 
 	var i, err = o.cache.Get(key)
 	if err != nil {
-		return nil, err
+		return 0, nil, err
 	}
 
-	o.Lock()
+	o.RLock()
 	if list, err = o.items.get(i); err != nil {
-		return list, err
+		o.RUnlock()
+		return i, list, err
 	}
-	o.Unlock()
-	return list, nil
+	o.RUnlock()
+	return i, list, nil
+}
+func (o *Orders) Search(order *instruments.Order) *node {
+	o.RLock()
+	var _, list, err = o.Get(order.Name)
+	if err != nil {
+		o.RUnlock()
+		return nil
+	}
+	o.RUnlock()
+	return list.Search(order)
 }
 
+func (o *Orders) Remove(data *node) (ok bool) {
+	var delete bool
+
+	var i, list, err = o.Get(data.Name)
+	if err != nil {
+		return false
+	}
+	if delete, ok = list.remove(data); delete {
+		o.items.remove(i)
+	}
+	return
+}
+
+// func (o *Orders) QueryToRemove(quote *instruments.Quote, fn func(*instruments.Quote) bool) ([]instruments.Order, error) {
+// 	var toExecute = make([]instruments.Order, 0)
+
+// 	o.RLock()
+// 	var list, err = o.Get(quote.Name)
+// 	if err != nil {
+// 		o.RUnlock()
+// 		return toExecute, err
+// 	}
+// 	list.Lock()
+// 	for x := list.head.next; x != nil; x = x.next {
+
+// 		if fn(x.Order, quote) {
+// 			newTXs = append(newTXs, tx)
+
+// 		}
+// 	}
+// 	list.Unlock()
+// 	return newTXs, nil
+// }
+
 // Insert a order into a Orders's items linked list.
-func (o *Orders) Insert(order instruments.Order) (err error) {
+func (o *Orders) Insert(order *instruments.Order) {
 	var i uint32
+	var err error
+
 	o.Lock()
 	if i, err = o.cache.Put(order.Name); err != nil {
-		o.Unlock()
-		return err
+		i, _ = o.cache.Get(order.Name)
 	}
 	o.items.insert(order, i)
 	o.Unlock()
-	return nil
 }
 
-// Remove a order into a Orders's items linked list.
-// If nothing can be removed, return error.
-func (o *Orders) Remove(key string) (err error) {
+func (o *Orders) GetSlice(key string) ([]*instruments.Order, error) {
 	var i uint32
+	var err error
+	var nodes *list
+	var orders = make([]*instruments.Order, 0)
 
-	o.Lock()
-	if i, err = o.cache.Remove(key); err != nil {
-		o.Unlock()
-		return err
+	o.RLock()
+	// Query cache to see if we hold Orders with same key.
+	// If not return error.
+	if i, err = o.cache.Get(key); err != nil {
+		o.RUnlock()
+		return nil, err
 	}
-	o.items.remove(i)
-	o.Unlock()
-	return nil
+	// Query items list to return linked list of nodes.
+	// Return error if i outside of last index.
+	if nodes, err = o.items.get(i); err != nil {
+		o.RUnlock()
+		return nil, err
+	}
+	for x := nodes.head.next; x != nil; x = x.next {
+		if x.Order != nil {
+			orders = append(orders, x.Order)
+		}
+	}
+	o.RUnlock()
+	return orders, nil
 }

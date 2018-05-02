@@ -23,16 +23,21 @@ package orders
 import (
 	"errors"
 	"sync"
+
+	"github.com/jakeschurch/instruments"
 )
 
 var ErrListEmpty = errors.New("no elements in container")
 
 // list is a collection of HoldingNodes,
 // as well as aggregate metrics on the collection of orders.
+// 		Notes:
+//			 list.head should always have a nil reference to its order.
 type list struct {
 	sync.RWMutex
 	head *node
 	tail *node
+	// REVIEW: len  uint // specifies number of orders
 }
 
 // NewList constructs a new orders.list instance.
@@ -41,6 +46,16 @@ func NewList() *list {
 		head: &node{next: nil, prev: nil},
 		tail: &node{next: nil, prev: nil},
 	}
+}
+
+// Search uses an Order struct to look for a node in a list.
+func (l *list) Search(o *instruments.Order) *node {
+	for x := l.head.next; x != nil; x = x.next {
+		if o == x.Order {
+			return x
+		}
+	}
+	return nil
 }
 
 // Push inserts a node into a orders.List.
@@ -91,4 +106,26 @@ func (l *list) Peek() (*node, error) {
 		return nil, ErrListEmpty
 	}
 	return l.tail, nil
+}
+
+func (l *list) remove(data *node) (delete, ok bool) {
+	if data == nil {
+		ok = false
+	}
+
+	switch {
+	case data == l.head:
+		ok = false
+	case data == l.tail:
+		l.Pop()
+		ok = true
+	default:
+		data.next.prev = data.prev
+		data.prev.next = data.next
+		ok = true
+	}
+	if l.head.next == nil {
+		delete = true
+	}
+	return
 }

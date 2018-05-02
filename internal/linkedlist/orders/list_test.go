@@ -23,6 +23,8 @@ package orders
 import (
 	"reflect"
 	"testing"
+
+	"github.com/jakeschurch/instruments"
 )
 
 func TestNewList(t *testing.T) {
@@ -46,7 +48,7 @@ func TestNewList(t *testing.T) {
 }
 
 func Test_list_Push(t *testing.T) {
-	mockedNode := NewNode(*mockOrder(), nil, nil)
+	mockedNode := NewNode(mockOrder(), nil, nil)
 	mockedHead := &node{Order: nil, next: nil, prev: nil}
 	mockedTail := &node{Order: mockOrder(), next: nil, prev: mockedHead}
 	mockedHead.next = mockedTail
@@ -187,6 +189,53 @@ func Test_list_Peek(t *testing.T) {
 			}
 			if !reflect.DeepEqual(got, tt.want) {
 				t.Errorf("LinkedList.Peek() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
+func Test_list_Search(t *testing.T) {
+	type args struct {
+		o *instruments.Order
+	}
+	tests := []struct {
+		name string
+		l    *list
+		args args
+		want *node
+	}{
+		// TODO: Add test cases.
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := tt.l.Search(tt.args.o); !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("list.Search() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
+func Test_list_remove(t *testing.T) {
+	type args struct {
+		data *node
+	}
+	tests := []struct {
+		name       string
+		l          *list
+		args       args
+		wantDelete bool
+		wantOk     bool
+	}{
+		// TODO: Add test cases.
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			gotDelete, gotOk := tt.l.remove(tt.args.data)
+			if gotDelete != tt.wantDelete {
+				t.Errorf("list.remove() gotDelete = %v, want %v", gotDelete, tt.wantDelete)
+			}
+			if gotOk != tt.wantOk {
+				t.Errorf("list.remove() gotOk = %v, want %v", gotOk, tt.wantOk)
 			}
 		})
 	}

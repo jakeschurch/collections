@@ -24,37 +24,53 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/jakeschurch/collections/internal/cache"
 	"github.com/jakeschurch/instruments"
 )
 
-func mockItems() *items {
-	return &items{
-		data: make([]*list, 0),
-		len:  0,
-	}
-}
-func Test_newitems(t *testing.T) {
+func Test_newItems(t *testing.T) {
 	tests := []struct {
 		name string
 		want *items
 	}{
-		{"base case", mockItems()},
+		// TODO: Add test cases.
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			if got := newItems(); !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("newitems() = %v, want %v", got, tt.want)
+				t.Errorf("newItems() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
+func Test_items_get(t *testing.T) {
+	type args struct {
+		i uint32
+	}
+	tests := []struct {
+		name    string
+		n       *items
+		args    args
+		want    *list
+		wantErr bool
+	}{
+		// TODO: Add test cases.
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got, err := tt.n.get(tt.args.i)
+			if (err != nil) != tt.wantErr {
+				t.Errorf("items.get() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+			if !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("items.get() = %v, want %v", got, tt.want)
 			}
 		})
 	}
 }
 
 func Test_items_remove(t *testing.T) {
-	mockedItems := mockItems()
-	NewList := NewList()
-	mockedItems.data = append(mockedItems.data, NewList)
-
 	type args struct {
 		i uint32
 	}
@@ -63,7 +79,7 @@ func Test_items_remove(t *testing.T) {
 		n    *items
 		args args
 	}{
-		{"base case", mockedItems, args{0}},
+		// TODO: Add test cases.
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -74,134 +90,19 @@ func Test_items_remove(t *testing.T) {
 
 func Test_items_insert(t *testing.T) {
 	type args struct {
-		holding instruments.Order
-		i       uint32
+		order *instruments.Order
+		i     uint32
 	}
 	tests := []struct {
 		name string
 		n    *items
 		args args
 	}{
-		{"base case", mockItems(), args{*mockOrder(), 0}},
-		{"need to grow slice", mockItems(), args{*mockOrder(), 2}},
-		{"just push", mockItems(), args{*mockOrder(), 0}},
+		// TODO: Add test cases.
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if tt.name == "just push" {
-				tt.n.data = make([]*list, 1)
-				tt.n.data[0] = NewList()
-			}
-			tt.n.insert(tt.args.holding, tt.args.i)
-		})
-	}
-}
-
-func mockOrders() *Orders {
-	return &Orders{
-		cache: cache.New(),
-		items: newItems(),
-	}
-}
-func TestOrders_Get(t *testing.T) {
-	mockedOrders := mockOrders()
-	mockedOrders.Insert(*mockOrder())
-
-	type args struct {
-		key string
-	}
-	tests := []struct {
-		name    string
-		h       *Orders
-		args    args
-		want    *list
-		wantErr bool
-	}{
-		{"base case", mockedOrders, args{"GOOGL"}, mockedOrders.data[0], false},
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			got, err := tt.h.Get(tt.args.key)
-			if (err != nil) != tt.wantErr {
-				t.Errorf("Orders.Get() error = %v, wantErr %v", err, tt.wantErr)
-				return
-			}
-			if !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("Orders.Get() = %v, want %v", got, tt.want)
-			}
-		})
-	}
-}
-
-func TestOrders_Insert(t *testing.T) {
-	mockedOrders := mockOrders()
-	mockedOrders.data = append(mockedOrders.data, NewList())
-	mockedOrders.data[0].Push(NewNode(*mockOrder(), nil, nil))
-	node, _ := mockedOrders.data[0].Peek()
-	mockedOrders.cache.Put(node.Name)
-
-	type args struct {
-		holding instruments.Order
-	}
-	tests := []struct {
-		name    string
-		h       *Orders
-		args    args
-		wantErr bool
-	}{
-		{"base case", mockOrders(), args{*mockOrder()}, false},
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			if err := tt.h.Insert(tt.args.holding); (err != nil) != tt.wantErr {
-				t.Errorf("Orders.Insert() error = %v, wantErr %v", err, tt.wantErr)
-			}
-		})
-	}
-}
-
-func TestOrders_Remove(t *testing.T) {
-	mockedOrders := mockOrders()
-	mockedOrders.data = append(mockedOrders.data, NewList())
-	mockedOrders.data[0].Push(NewNode(*mockOrder(), nil, nil))
-	node, _ := mockedOrders.data[0].Peek()
-	mockedOrders.cache.Put(node.Name)
-
-	type args struct {
-		key string
-	}
-	tests := []struct {
-		name    string
-		h       *Orders
-		args    args
-		wantErr bool
-	}{
-		{"base case", mockedOrders, args{"GOOGL"}, false},
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			if err := tt.h.Remove(tt.args.key); (err != nil) != tt.wantErr {
-				t.Errorf("Orders.Remove() error = %v, wantErr %v", err, tt.wantErr)
-			}
-		})
-	}
-}
-
-func Test_newItems(t *testing.T) {
-	tests := []struct {
-		name string
-		want *items
-	}{
-		{"base case", &items{
-			data: make([]*list, 0),
-			len:  0,
-		}},
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			if got := newItems(); !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("newItems() = %v, want %v", got, tt.want)
-			}
+			tt.n.insert(tt.args.order, tt.args.i)
 		})
 	}
 }
@@ -215,7 +116,7 @@ func Test_items_grow(t *testing.T) {
 		n    *items
 		args args
 	}{
-		{"base case", mockItems(), args{10}},
+		// TODO: Add test cases.
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -229,10 +130,7 @@ func TestNew(t *testing.T) {
 		name string
 		want *Orders
 	}{
-		{"base case", &Orders{
-			cache: cache.New(),
-			items: newItems(),
-		}},
+		// TODO: Add test cases.
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -243,41 +141,119 @@ func TestNew(t *testing.T) {
 	}
 }
 
-func Test_items_get(t *testing.T) {
-	mockedItems := mockItems()
-	NewList := NewList()
-	mockedItems.data = append(mockedItems.data, NewList)
-
-	type fields struct {
-		data []*list
-		len  uint32
-	}
+func TestOrders_Get(t *testing.T) {
 	type args struct {
-		i uint32
+		key string
 	}
 	tests := []struct {
 		name    string
-		fields  fields
+		o       *Orders
 		args    args
-		want    *list
+		want    uint32
+		want1   *list
 		wantErr bool
 	}{
-		{"base case", fields{mockedItems.data, mockedItems.len}, args{0}, NewList, false},
-		{"err case", fields{mockedItems.data, mockedItems.len}, args{1}, nil, true},
+		// TODO: Add test cases.
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			n := &items{
-				data: tt.fields.data,
-				len:  tt.fields.len,
-			}
-			got, err := n.get(tt.args.i)
+			got, got1, err := tt.o.Get(tt.args.key)
 			if (err != nil) != tt.wantErr {
-				t.Errorf("items.get() error = %v, wantErr %v", err, tt.wantErr)
+				t.Errorf("Orders.Get() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+			if got != tt.want {
+				t.Errorf("Orders.Get() got = %v, want %v", got, tt.want)
+			}
+			if !reflect.DeepEqual(got1, tt.want1) {
+				t.Errorf("Orders.Get() got1 = %v, want %v", got1, tt.want1)
+			}
+		})
+	}
+}
+
+func TestOrders_Search(t *testing.T) {
+	type args struct {
+		order *instruments.Order
+	}
+	tests := []struct {
+		name string
+		o    *Orders
+		args args
+		want *node
+	}{
+		// TODO: Add test cases.
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := tt.o.Search(tt.args.order); !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("Orders.Search() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
+func TestOrders_Remove(t *testing.T) {
+	type args struct {
+		data *node
+	}
+	tests := []struct {
+		name   string
+		o      *Orders
+		args   args
+		wantOk bool
+	}{
+		// TODO: Add test cases.
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if gotOk := tt.o.Remove(tt.args.data); gotOk != tt.wantOk {
+				t.Errorf("Orders.Remove() = %v, want %v", gotOk, tt.wantOk)
+			}
+		})
+	}
+}
+
+func TestOrders_Insert(t *testing.T) {
+	type args struct {
+		order *instruments.Order
+	}
+	tests := []struct {
+		name string
+		o    *Orders
+		args args
+	}{
+		// TODO: Add test cases.
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			tt.o.Insert(tt.args.order)
+		})
+	}
+}
+
+func TestOrders_GetSlice(t *testing.T) {
+	type args struct {
+		key string
+	}
+	tests := []struct {
+		name    string
+		o       *Orders
+		args    args
+		want    []*instruments.Order
+		wantErr bool
+	}{
+		// TODO: Add test cases.
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got, err := tt.o.GetSlice(tt.args.key)
+			if (err != nil) != tt.wantErr {
+				t.Errorf("Orders.GetSlice() error = %v, wantErr %v", err, tt.wantErr)
 				return
 			}
 			if !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("items.get() = %v, want %v", got, tt.want)
+				t.Errorf("Orders.GetSlice() = %v, want %v", got, tt.want)
 			}
 		})
 	}
