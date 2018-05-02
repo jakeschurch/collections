@@ -1,8 +1,8 @@
-# collections [WIP]
+# collections
 
-[![GoDoc](https://godoc.org/github.com/jakeschurch/collections?status.svg)](https://godoc.org/github.com/jakeschurch/collections)[![Go Report Card](https://goreportcard.com/badge/github.com/jakeschurch/collections)](https://goreportcard.com/report/github.com/jakeschurch/collections)[![Build Status](https://travis-ci.org/jakeschurch/collections.svg?branch=master)](https://travis-ci.org/jakeschurch/collections)[![Coverage Status](https://coveralls.io/repos/github/jakeschurch/collections/badge.svg?branch=master)](https://coveralls.io/github/jakeschurch/collections?branch=master)[![License](https://img.shields.io/badge/license-MIT-blue.svg)](https://opensource.org/licenses/MIT)
+[![GoDoc](https://godoc.org/github.com/jakeschurch/collections?status.svg)](https://godoc.org/github.com/jakeschurch/collections)[![Go Report Card](https://goreportcard.com/badge/github.com/jakeschurch/collections)](https://goreportcard.com/report/github.com/jakeschurch/collections)[![Build Status](https://travis-ci.org/jakeschurch/collections.svg?branch=master)](https://travis-ci.org/jakeschurch/collections)[![Coverage Status](https://coveralls.io/repos/github/jakeschurch/collections/badge.svg?branch=master)](https://coveralls.io/github/jakeschurch/collections?branch=master)
 
-collections is a package for the Go Programming Language which features functionality for financial collections such as a portfolio and a benchmark.
+collections is a package for the Go Programming Language which features structs for holding financial instruments like orders and (stock) holdings.
 
 ## Installation
 
@@ -34,7 +34,7 @@ See also the list of [contributors](https://github.com/jakeschurch/collections/c
 
 ## License
 
-This project is licensed under the MIT License - see the [LICENSE.md](LICENSE.md) file for details
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details
 
 ## Acknowledgments
 
