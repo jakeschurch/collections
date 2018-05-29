@@ -7,12 +7,13 @@ language: go
 # in the next version of Go. Don't worry! Later we declare that test runs
 # are allowed to fail on Go tip.
 go:
-  - tip
+  - "1.10.x"
+  - master
 
 before_install:
-  - go get github.com/mattn/goveralls
-  - curl https://raw.githubusercontent.com/golang/dep/master/install.sh | sh
+  - go get github.com/mattn/goveralls  
+  - go get golang.org/x/vgo
 install:
-  - dep ensure
+  - cd $GOPATH/src/github.com/jakeschurch/collections | vgo build
 script:
   - $GOPATH/bin/goveralls -service=travis-ci

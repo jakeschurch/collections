@@ -30,7 +30,7 @@ import (
 
 func mockHolding() instruments.Holding {
 	return instruments.Holding{
-		Name: "GOOGL", Volume: instruments.NewVolume(15.00),
+		Name: "GOOGL", Volume: instruments.Volume(15),
 		Buy: instruments.TxMetric{Price: instruments.NewPrice(10.00), Date: time.Time{}},
 	}
 }
